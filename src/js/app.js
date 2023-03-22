@@ -8,8 +8,8 @@ const update = () => {};
 
 const config = {
   type: Phaser.AUTO,
-  width: 800,
-  height: 600,
+  width: 1024,
+  height: 768,
   parent: "app-container",
   scene: {
     preload: preload,
