@@ -1,5 +1,20 @@
 const express = require("express");
+const webpack = require("webpack");
+const config = require("./webpack.config.js");
+
+const compiler = webpack(config);
+
 const server = express();
+
+compiler.watch(
+  {
+    aggregateTimeout: 300,
+    poll: undefined,
+  },
+  (err, stats) => {
+    // Print watch/build result here...
+  }
+);
 
 server.get("/", (req, res) => {
   res.sendFile(__dirname + "/src/index.html");
