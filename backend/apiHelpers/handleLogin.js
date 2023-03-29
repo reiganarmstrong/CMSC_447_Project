@@ -1,9 +1,8 @@
-const db = require("./connectToDatabase")();
 const createPlayer = require("./createPlayer");
 const getPlayer = require("./getPlayer");
 
-module.exports = async (name) => {
-  let returnStatement = "FAILED";
+module.exports = async (db, name) => {
+  let returnStatement = { name: "null" };
   let players = null;
   name = name.trim();
 
@@ -12,18 +11,11 @@ module.exports = async (name) => {
     console.log("FAILED AT GETTING PLAYER OPERATION");
     // if there is a player with this name
   } else if (players.length > 0) {
-    returnStatement = players[0].level;
+    returnStatement = players[0];
     // if not create a new player
   } else {
     await createPlayer(db, name);
-    returnStatement = 1;
+    returnStatement = (await getPlayer(db, name))[0];
   }
-  db.close((err) => {
-    if (err) {
-      console.log(err.message);
-    } else {
-      console.log("Closed players database");
-    }
-  });
   return returnStatement;
 };

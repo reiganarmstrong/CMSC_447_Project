@@ -1,6 +1,4 @@
-const db = require("./connectToDatabase")();
-
-module.exports = () => {
+module.exports = (db) => {
   // sql statements
   const createTable =
     "CREATE TABLE players(name TEXT NOT NULL PRIMARY KEY, level INTEGER)";
@@ -18,12 +16,5 @@ module.exports = () => {
         console.log(err.message);
       }
     });
-  });
-  db.close((err) => {
-    if (err) {
-      console.log(err.message);
-    } else {
-      console.log("Closed players database.");
-    }
   });
 };
