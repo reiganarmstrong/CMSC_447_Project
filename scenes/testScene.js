@@ -1,6 +1,5 @@
 import { Scene } from "phaser";
 import LaserGroup from "./helperClasses/LaserGroup";
-
 class testScene extends Scene {
   init() {}
   preload() {
