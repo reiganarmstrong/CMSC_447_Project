@@ -19,7 +19,7 @@ const config = {
     },
   },
   parent: "app-container",
-  scene: [testScene],
+  scene: [loginScene],
 };
 
 const game = new Phaser.Game(config);
