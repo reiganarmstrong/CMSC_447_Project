@@ -10,17 +10,17 @@ class LaserGroup extends Phaser.Physics.Arcade.Group {
       classType: Laser, // This is the class we create just below
       // the below value constrains the maximum number of objects on screen at once
       // this determines how many bullets the player can fire before having to wait
-      frameQuantity: 4,
+      frameQuantity: 3,
       active: false,
       visible: false,
       key: "missile",
     });
   }
 
-  fireLaser(x, y, xVel, yVel) {
+  fireLaser(x, y) {
     const laser = this.getFirstDead(false);
     if (laser) {
-      laser.fire(x, y, xVel, yVel);
+      laser.fire(x, y);
     }
   }
 }
