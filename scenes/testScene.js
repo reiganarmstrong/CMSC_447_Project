@@ -99,7 +99,7 @@ class testScene extends Scene {
       );
     }
     if (Phaser.Input.Keyboard.JustDown(this.keys.ESC)) {
-      console.log("Escape has been pressed");
+      console.log("Esc");
       this.scene.start("mainMenuScene", this.userData);
     }
   }
