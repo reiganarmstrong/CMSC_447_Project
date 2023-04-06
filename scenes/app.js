@@ -1,10 +1,11 @@
 import Phaser from "phaser";
 import loginScene from "./loginScene";
 import testScene from "./testScene";
+import mainMenuScene from "./mainMenuScene";
+import levelSelectorScene from "./levelSelectorScene";
 
 const width = 1024;
 const height = 768;
-
 const config = {
   type: Phaser.AUTO,
   width: width,
@@ -19,7 +20,7 @@ const config = {
     },
   },
   parent: "app-container",
-  scene: [testScene],
+  scene: [loginScene, testScene, mainMenuScene, levelSelectorScene],
 };
 
 const game = new Phaser.Game(config);

@@ -11,6 +11,7 @@ const server = express();
 
 // middleware
 server.use(express.static(path.join(__dirname, "..", "public")));
+console.log(path.join(__dirname, "..", "public"));
 // server.use(express.json());
 
 // start server on port 3000
@@ -45,3 +46,5 @@ compiler.watch(
   },
   (err, stats) => {}
 );
+
+
