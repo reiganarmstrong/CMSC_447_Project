@@ -5,6 +5,7 @@ import { width, height } from "./app";
 class loginScene extends Scene {
   constructor(config) {
     super(config);
+    Phaser.Scene.call(this, { key: "loginScene" });
   }
 
   init() {}
@@ -13,13 +14,14 @@ class loginScene extends Scene {
   }
   create() {
     // adds the form
-    const element = this.add
-      .dom(width / 2 + 250, height / 2)
+    const form = this.add
+      .dom(width / 2, height / 2)
       .createFromCache("loginForm");
-    element.addListener("submit");
-    element.on("submit", (e) => {
+    form.parent.classList.add("centered-container");
+    form.addListener("submit");
+    form.on("submit", (e) => {
       e.preventDefault();
-      const name = element.getChildByID("name-input");
+      const name = form.getChildByID("name-input");
       if (name.value == "") {
         // adds red highlight
         name.classList.add("bad-input");
@@ -37,7 +39,8 @@ class loginScene extends Scene {
           })
           .then((res) => {
             // prints out the layer data
-            console.log(res.data);
+            const userData = res.data;
+            this.scene.start("mainMenuScene", userData);
           });
       }
     });
