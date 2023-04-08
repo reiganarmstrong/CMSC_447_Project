@@ -20,19 +20,36 @@ class pauseMenuScene extends Scene {
       .dom(width / 2, height / 2)
       .createFromCache("pauseMenu");
     const resume = menu.getChildByID("resume");
+    const restart = menu.getChildByID("restart");
     const mainMenu = menu.getChildByID("main-menu");
     const userName = menu.getChildByID("user");
+    this.keys = this.input.keyboard.addKeys("ESC");
     userName.textContent = this.userData.name;
     menu.parent.classList.add("centered-container");
     mainMenu.addEventListener("click", () => {
+      this.scene.stop(this.levelKey);
       this.scene.start("mainMenuScene", this.userData);
     });
     resume.addEventListener("click", () => {
-      this.scene.resume(this.levelKey);
-      this.scene.stop();
+      this.returnToLevel();
+    });
+    restart.addEventListener("click", () => {
+      this.restartLevel();
     });
   }
-  update(time, delta) {}
+  update(time, delta) {
+    if (this.keys.ESC.isDown) {
+      this.returnToLevel();
+    }
+  }
+  returnToLevel() {
+    this.scene.resume(this.levelKey);
+    this.scene.stop();
+  }
+  restartLevel() {
+    this.scene.stop(this.levelKey);
+    this.scene.start(this.levelKey);
+  }
 }
 
 export default pauseMenuScene;
