@@ -36,7 +36,7 @@ form {
 .centered-container {
   display: inline-block !important;
 }
-.main-menu {
+.menu {
   display: flex;
   flex-direction: column;
   gap: 3rem;
@@ -47,7 +47,7 @@ form {
   border: 1px solid rgb(255, 0, 0);
 }
 
-.main-menu-option {
+.menu-option {
   background: rgba(255, 255, 255, 0);
   border-radius: 16px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
