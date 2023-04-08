@@ -64,6 +64,8 @@ class testScene extends Scene {
   }
 
   update() {
+    console.log("asdasdasdads");
+    console.log(this.ship);
     this.physics.world.wrap(this.ship);
 
     this.debugText.setText(
@@ -133,7 +135,11 @@ class testScene extends Scene {
     }
     if (Phaser.Input.Keyboard.JustDown(this.keys.ESC)) {
       console.log("Esc");
-      this.scene.start("mainMenuScene", this.userData);
+      this.scene.launch("pauseMenuScene", {
+        userData: this.userData,
+        sceneKey: "testScene",
+      });
+      this.scene.pause();
     }
   }
 }
