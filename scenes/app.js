@@ -4,6 +4,7 @@ import testScene from "./testScene";
 import mainMenuScene from "./mainMenuScene";
 import levelSelectorScene from "./levelSelectorScene";
 import pauseMenuScene from "./pauseMenuScene";
+import highScoresScene from "./highScoresScene";
 
 const width = 1024;
 const height = 768;
@@ -26,6 +27,7 @@ const config = {
     testScene,
     mainMenuScene,
     levelSelectorScene,
+    highScoresScene,
     pauseMenuScene,
   ],
 };

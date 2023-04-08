@@ -35,6 +35,7 @@ form {
 }
 .centered-container {
   display: inline-block !important;
+  text-align: center;
 }
 .menu {
   display: flex;
@@ -88,7 +89,22 @@ form {
   color: white;
   margin-bottom: 3rem;
 }
-
+.score-menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 768px;
+  width: 1024px;
+  flex-direction: column;
+  text-align: center;
+}
+.score {
+  font-size: 2rem;
+  color: white;
+}
+.score-menu-back {
+  margin-top: 4rem;
+}
 input {
   margin: 1rem;
   background: rgba(255, 255, 255, 0.039);

@@ -40,6 +40,7 @@ class loginScene extends Scene {
           .then((res) => {
             // prints out the layer data
             const userData = res.data;
+            console.log(userData);
             this.scene.start("mainMenuScene", userData);
           });
       }
