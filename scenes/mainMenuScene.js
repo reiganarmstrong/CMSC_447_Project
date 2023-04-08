@@ -20,12 +20,11 @@ class mainMenuScene extends Scene {
     const levelSelector = menu.getChildByID("level-selector");
     const highScores = menu.getChildByID("high-scores");
     const logOut = menu.getChildByID("log-out");
-    const userInfo = menu.getChildByID("user");
-    console.log(this.userData.name);
-    userInfo.textContent = this.userData.name;
+    const userName = menu.getChildByID("user");
+    userName.textContent = this.userData.name;
     menu.parent.classList.add("centered-container");
     highScores.addEventListener("click", () => {
-      console.log("High Scores Selected");
+      this.scene.start("highScoresScene", this.userData);
     });
     levelSelector.addEventListener("click", () => {
       this.scene.start("levelSelectorScene", this.userData);

@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "dev": "nodemon --watch frontend/js backend/server.js"
+    "dev": "node backend/apiHelpers/resetDatabase.js && nodemon --watch frontend/js backend/server.js",
+    "reset-database": "node backend/apiHelpers/resetDatabase.js"
   },
   "dependencies": {
     "axios": "^1.3.4",

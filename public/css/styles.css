@@ -35,8 +35,9 @@ form {
 }
 .centered-container {
   display: inline-block !important;
+  text-align: center;
 }
-.main-menu {
+.menu {
   display: flex;
   flex-direction: column;
   gap: 3rem;
@@ -47,7 +48,7 @@ form {
   border: 1px solid rgb(255, 0, 0);
 }
 
-.main-menu-option {
+.menu-option {
   background: rgba(255, 255, 255, 0);
   border-radius: 16px;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
@@ -88,7 +89,22 @@ form {
   color: white;
   margin-bottom: 3rem;
 }
-
+.score-menu {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 768px;
+  width: 1024px;
+  flex-direction: column;
+  text-align: center;
+}
+.score {
+  font-size: 2rem;
+  color: white;
+}
+.score-menu-back {
+  margin-top: 4rem;
+}
 input {
   margin: 1rem;
   background: rgba(255, 255, 255, 0.039);
