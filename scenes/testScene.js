@@ -1,5 +1,6 @@
 import { Scene } from "phaser";
 import LaserGroup from "./helperClasses/LaserGroup";
+import EnemyGroup from "./helperClasses/EnemyGroup";
 class testScene extends Scene {
   constructor(config) {
     super(config);
@@ -17,17 +18,49 @@ class testScene extends Scene {
     this.load.image("ship_left", "assets/png/ship_left.png");
     this.load.image("ship_right", "assets/png/ship_right.png");
     this.load.image("missile", "assets/png/missile.png");
+    this.load.image("enemy1", "assets/png/enemy1.png");
     this.load.image("sky", "assets/png/sky.png");
   }
 
   create() {
     this.add.image(512, 384, "sky");
     this.laserGroup = new LaserGroup(this);
+    this.enemyGroup = new EnemyGroup(this);
+
+    this.laserGroup.physicsType = Phaser.Physics.ARCADE;
+    this.enemyGroup.physicsType = Phaser.Physics.ARCADE;
+
     this.keys = this.input.keyboard.addKeys("LEFT,RIGHT,UP,DOWN,SPACE,ESC");
     this.ship = this.physics.add.image(512, 700, "ship");
     //this.ship.setCollideWorldBounds(true);
 
     this.debugText = this.add.text(16, 16, "hello");
+
+
+    // see https://rexrainbow.github.io/phaser3-rex-notes/docs/site/tween/
+    // for relative tweening
+    let timeline = this.tweens.timeline({
+      targets: this.enemyGroup.getChildren(),
+      loop: -1,
+      tweens: [
+        {
+          x: "-=50",
+          ease: "Sine.easeInOut",
+          duration: 500,
+          offset: 0,
+          yoyo: true
+        },
+        {
+          y: "+=200",
+          ease: "Sine.easeOut",
+          duration: 500,
+          yoyo: true,
+          offset: 0
+        },
+      ]
+    });
+
+    console.log(timeline);
   }
 
   update() {
@@ -35,17 +68,17 @@ class testScene extends Scene {
 
     this.debugText.setText(
       "fps: " +
-        this.game.loop.actualFps.toString() +
-        "\n" +
-        "y: " +
-        this.ship.y +
-        "\n" +
-        "y velocity: " +
-        this.ship.body.velocity.y.toString() +
-        "\n" +
-        "x velocity: " +
-        this.ship.body.velocity.x.toString() +
-        "\n"
+      this.game.loop.actualFps.toString() +
+      "\n" +
+      "y: " +
+      this.ship.y +
+      "\n" +
+      "y velocity: " +
+      this.ship.body.velocity.y.toString() +
+      "\n" +
+      "x velocity: " +
+      this.ship.body.velocity.x.toString() +
+      "\n"
     );
 
     if (this.ship.y >= 734 && this.ship.body.velocity.y > 0) {
