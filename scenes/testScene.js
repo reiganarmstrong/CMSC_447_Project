@@ -39,33 +39,43 @@ class testScene extends Scene {
 
     // see https://rexrainbow.github.io/phaser3-rex-notes/docs/site/tween/
     // for relative tweening
-    let timeline = this.tweens.timeline({
+    let enemyTimelineX = this.tweens.createTimeline();
+    enemyTimelineX.add({
       targets: this.enemyGroup.getChildren(),
-      loop: -1,
-      tweens: [
-        {
-          x: "-=50",
-          ease: "Sine.easeInOut",
-          duration: 500,
-          offset: 0,
-          yoyo: true
-        },
-        {
-          y: "+=200",
-          ease: "Sine.easeOut",
-          duration: 500,
-          yoyo: true,
-          offset: 0
-        },
-      ]
+      x: "+=100",
+      duration: 500,
+      ease: "Sine.InOut",
+      yoyo: true,
+      repeat: -1,
     });
 
-    console.log(timeline);
+    let enemyTimelineY = this.tweens.createTimeline();
+    enemyTimelineY.add({
+      targets: this.enemyGroup.getChildren(),
+      y: "+=50",
+      duration: 250,
+      ease: "Sine.InOut",
+      yoyo: true,
+      repeat: -1,
+      loop: -1
+    });
+    enemyTimelineY.add({
+      targets: this.enemyGroup.getChildren(),
+      y: "-=50",
+      duration: 250,
+      ease: "Sine.InOut",
+      yoyo: true,
+      repeat: -1,
+      loop: -1,
+    });
+
+    enemyTimelineX.play();
+    enemyTimelineY.play();
+
   }
 
   update() {
-    console.log("asdasdasdads");
-    console.log(this.ship);
+    // console.log(this.ship);
     this.physics.world.wrap(this.ship);
 
     this.debugText.setText(
