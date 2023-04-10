@@ -36,6 +36,8 @@ class testScene extends Scene {
 
     this.debugText = this.add.text(16, 16, "hello");
 
+    this.physics.add.overlap(this.enemyGroup, this.laserGroup, this.laserCollision, null, this);
+
 
     // see https://rexrainbow.github.io/phaser3-rex-notes/docs/site/tween/
     // for relative tweening
@@ -72,6 +74,16 @@ class testScene extends Scene {
     enemyTimelineX.play();
     enemyTimelineY.play();
 
+  }
+
+  laserCollision(enemy, laser) {
+    console.log(`enemy ${enemy}, laser ${laser}`);
+    console.log(`enemy active ${enemy.active}, laser ${laser}`);
+    enemy.setActive(false);
+    enemy.setVisible(false);
+    laser.setActive(false);
+    laser.setVisible(false);
+    enemy.disableBody(true, true);
   }
 
   update() {
