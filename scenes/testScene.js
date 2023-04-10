@@ -77,8 +77,6 @@ class testScene extends Scene {
   }
 
   laserCollision(enemy, laser) {
-    console.log(`enemy ${enemy}, laser ${laser}`);
-    console.log(`enemy active ${enemy.active}, laser ${laser}`);
     enemy.setActive(false);
     enemy.setVisible(false);
     laser.setActive(false);
@@ -87,7 +85,6 @@ class testScene extends Scene {
   }
 
   update() {
-    // console.log(this.ship);
     this.physics.world.wrap(this.ship);
 
     this.debugText.setText(
@@ -109,19 +106,16 @@ class testScene extends Scene {
       this.ship.body.velocity.y = 0;
     }
     if (this.keys.UP.isDown) {
-      console.log("up");
       //this.ship.setVelocityY(this.ship.body.velocity.y - 4);
       this.ship.setVelocityY(500 - this.ship.y);
     }
     if (this.keys.DOWN.isDown) {
-      console.log("down");
       /*if (this.ship.y < 734) {
         this.ship.setVelocityY(this.ship.body.velocity.y + 4);
       }*/
       this.ship.setVelocityY(734 - this.ship.y);
     }
     if (this.keys.LEFT.isDown && !this.keys.RIGHT.isDown) {
-      console.log("left");
       if (this.ship.body.velocity.x > 400) {
         this.ship.setTexture("ship");
       } else {
@@ -130,7 +124,6 @@ class testScene extends Scene {
       this.ship.setVelocityX(this.ship.body.velocity.x - 10);
     }
     if (this.keys.RIGHT.isDown && !this.keys.LEFT.isDown) {
-      console.log("right");
       if (this.ship.body.velocity.x < -400) {
         this.ship.setTexture("ship");
       } else {
@@ -147,7 +140,6 @@ class testScene extends Scene {
     }
 
     if (Phaser.Input.Keyboard.JustDown(this.keys.SPACE)) {
-      console.log("shooted");
       this.laserGroup.fireLaser(
         this.ship.x + this.ship.body.velocity.x * 0.03,
         this.ship.y - 48,
@@ -156,7 +148,7 @@ class testScene extends Scene {
       );
     }
     if (Phaser.Input.Keyboard.JustDown(this.keys.ESC)) {
-      console.log("Esc");
+      console.log("Esc detected, pausing game.");
       this.scene.launch("pauseMenuScene", {
         userData: this.userData,
         sceneKey: "testScene",
