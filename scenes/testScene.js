@@ -75,6 +75,7 @@ class testScene extends Scene {
     });
 
     this.physics.add.overlap(this.enemyGroup, this.laserGroup, this.laserCollision, null, this);
+    this.physics.add.overlap(this.ship, this.enemyGroup, this.playerEnemyBodyCollision, null, this);
 
 
     // see https://rexrainbow.github.io/phaser3-rex-notes/docs/site/tween/
@@ -131,6 +132,16 @@ class testScene extends Scene {
     laser.setActive(false);
     laser.setVisible(false);
     enemy.disableBody(true, true);
+  }
+
+  playerEnemyBodyCollision(player, enemy) {
+    console.log("player collided with enemy body");
+    /*
+    player.setActive(false);
+    player.setVisible(false);
+    enemy.setActive(false);
+    enemy.setVisible(false);
+    */
   }
 
   update() {
