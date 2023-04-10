@@ -36,44 +36,93 @@ class testScene extends Scene {
 
     this.debugText = this.add.text(16, 16, "hello");
 
+    // dive bombing code:
+
+    let enemies = this.enemyGroup;
+    this.time.addEvent({
+      delay: 3000, // every 10 seconds
+      loop: true,
+      callback: () => {
+        let diveBomber = Phaser.Utils.Array.GetRandom(enemies.getChildren());
+
+        console.log(`enemy: ${diveBomber}`);
+        console.log(`enemy active: ${diveBomber.active}`);
+
+        // first stop the current tween, we will then add a new one to replace it
+        let diveBomberTweens = this.tweens.getTweensOf(diveBomber);
+        diveBomberTweens.forEach((timeline) => {
+          console.log(`type: ${timeline.constructor.name}`);
+          timeline.stop();
+          timeline.destroy();
+        });
+
+
+        // create a new timeline for the new tween
+        let diveBombTimeline = this.tweens.createTimeline();
+
+        diveBombTimeline.add({
+          targets: diveBomber,
+          x: 700,
+          y: 700,
+          duration: 1000,
+          yoyo: true,
+          repeat: -1
+        });
+
+        diveBombTimeline.play();
+      },
+      callbackScope: this
+    });
+
     this.physics.add.overlap(this.enemyGroup, this.laserGroup, this.laserCollision, null, this);
 
 
     // see https://rexrainbow.github.io/phaser3-rex-notes/docs/site/tween/
     // for relative tweening
-    let enemyTimelineX = this.tweens.createTimeline();
-    enemyTimelineX.add({
-      targets: this.enemyGroup.getChildren(),
-      x: "+=100",
-      duration: 500,
-      ease: "Sine.InOut",
-      yoyo: true,
-      repeat: -1,
+    let enemyTimelinesX = [];
+    let enemyTimelinesY = [];
+
+
+    // add tweens to individual enemy ships
+    this.enemyGroup.getChildren().forEach((enemy) => {
+      let enemyTimelineX = this.tweens.createTimeline();
+      enemyTimelineX.add({
+        targets: enemy,
+        x: "+=100",
+        duration: 500,
+        ease: "Sine.InOut",
+        yoyo: true,
+        repeat: -1,
+      });
+
+      enemyTimelinesX.push(enemyTimelineX);
+
+      let enemyTimelineY = this.tweens.createTimeline();
+      enemyTimelineY.add({
+        targets: enemy,
+        y: "+=50",
+        duration: 250,
+        ease: "Sine.InOut",
+        yoyo: true,
+        repeat: -1,
+        loop: -1
+      });
+      enemyTimelineY.add({
+        targets: enemy,
+        y: "-=50",
+        duration: 250,
+        ease: "Sine.InOut",
+        yoyo: true,
+        repeat: -1,
+        loop: -1
+      });
+      enemyTimelinesY.push(enemyTimelineY);
+
+      console.log("added tween");
     });
 
-    let enemyTimelineY = this.tweens.createTimeline();
-    enemyTimelineY.add({
-      targets: this.enemyGroup.getChildren(),
-      y: "+=50",
-      duration: 250,
-      ease: "Sine.InOut",
-      yoyo: true,
-      repeat: -1,
-      loop: -1
-    });
-    enemyTimelineY.add({
-      targets: this.enemyGroup.getChildren(),
-      y: "-=50",
-      duration: 250,
-      ease: "Sine.InOut",
-      yoyo: true,
-      repeat: -1,
-      loop: -1,
-    });
-
-    enemyTimelineX.play();
-    enemyTimelineY.play();
-
+    enemyTimelinesX.forEach((timeline) => { timeline.play(); });
+    enemyTimelinesY.forEach((timeline) => { timeline.play(); });
   }
 
   laserCollision(enemy, laser) {
