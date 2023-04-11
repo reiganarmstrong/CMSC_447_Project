@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import Laser from "./Laser";
+import EnemyLaser from "./EnemyLaser";
 class EnemyLaserGroup extends Phaser.Physics.Arcade.Group {
   constructor(scene) {
     // Call the super constructor, passing in a world and a scene
@@ -7,10 +7,10 @@ class EnemyLaserGroup extends Phaser.Physics.Arcade.Group {
 
     // Initialize the group
     this.createMultiple({
-      classType: Laser, // This is the class we create just below
+      classType: EnemyLaser, // This is the class we create just below
       // the below value constrains the maximum number of active objects
       // this determines how many bullets enemies can have on screen at once
-      frameQuantity: 10,
+      frameQuantity: 15,
       active: false,
       visible: false,
       key: "enemyLaser",

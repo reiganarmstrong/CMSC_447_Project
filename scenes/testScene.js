@@ -20,6 +20,7 @@ class testScene extends Scene {
     this.load.image("ship_right", "assets/png/ship_right.png");
     this.load.image("missile", "assets/png/missile.png");
     this.load.image("enemy1", "assets/png/enemy1.png");
+    this.load.image("enemyLaser", "assets/png/missile.png");
     this.load.image("sky", "assets/png/sky.png");
   }
 
@@ -134,6 +135,21 @@ class testScene extends Scene {
       callbackScope: this
     });
 
+
+    // add an event for each enemy to shoot between an interval
+    this.enemyGroup.getChildren().forEach((enemy) => {
+      this.time.addEvent({
+        delay: Phaser.Math.FloatBetween(3, 7) * 1000,
+        loop: true,
+        callback: () => {
+          console.log(`enemy shooting: ${enemy}`);
+          if (enemy.active) {
+            this.enemyLaserGroup.fireLaser(enemy.x, enemy.y + 48, enemy.body.velocity.x, 300);
+          }
+        },
+        callbackScope: this
+      });
+    });
 
     // create collision detection between enemies and player lasers
     this.physics.add.overlap(this.enemyGroup, this.laserGroup, this.laserCollision, null, this);

@@ -2,11 +2,14 @@ import Phaser from "phaser";
 class EnemyLaser extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
     super(scene, x, y, "enemyLaser");
+    console.log(`scene height: ${scene.game.config.height}`)
+    this.sceneHeight = scene.game.config.height;
   }
 
   preUpdate(time, delta) {
     super.preUpdate(time, delta);
-    if (this.y >= 0) {
+    console.log(`scene height: ${this.sceneHeight}`);
+    if (this.y >= this.sceneHeight) {
       this.setActive(false);
       this.setVisible(false);
     }
@@ -17,9 +20,7 @@ class EnemyLaser extends Phaser.Physics.Arcade.Sprite {
     this.setActive(true);
     this.setVisible(true);
 
-    //if the ship doesn't have upwards speed greater
-    //than the minimum bullet speed
-    this.setVelocity(xVel, 700);
+    this.setVelocity(xVel, yVel);
   }
 
 }
