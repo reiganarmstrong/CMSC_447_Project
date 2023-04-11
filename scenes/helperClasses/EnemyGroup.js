@@ -16,26 +16,6 @@ class EnemyGroup extends Phaser.Physics.Arcade.Group {
 			key: "enemy1",
 		});
 
-		// can do an X pattern easily with y offsets and mirroring
-		/*
-		this.createMultiple({
-			classType: Enemy,
-			frameQuantity: 5,
-			setXY: { x: 20, y: 20, stepX: 200, stepY: 50 },
-			active: true,
-			visible: true,
-			key: "enemy1",
-		});
-
-		this.createMultiple({
-			classType: Enemy,
-			frameQuantity: 5,
-			setXY: { x: 1020, y: 20, stepX: -200, stepY: 50 },
-			active: true,
-			visible: true,
-			key: "enemy1",
-		})
-		*/
 	}
 
 }
