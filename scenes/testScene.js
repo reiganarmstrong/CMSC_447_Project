@@ -43,10 +43,24 @@ class testScene extends Scene {
       delay: 3000, // every 10 seconds
       loop: true,
       callback: () => {
-        let diveBomber = Phaser.Utils.Array.GetRandom(enemies.getChildren());
 
-        console.log(`enemy: ${diveBomber}`);
-        console.log(`enemy active: ${diveBomber.active}`);
+        // don't want to tell an enemy to divebomb when it is already in the middle of that
+        // first, collect all of the enemies that are not currently diving and pick randomly from that
+        let availableDivers = [];
+        enemies.getChildren().forEach((enemy) => {
+          if (enemy.active && enemy.getData("diving") !== "true") {
+            availableDivers.push(enemy);
+          }
+        });
+
+        // if all enemies are diving, wait for next callback
+        if (availableDivers.length == 0) {
+          console.log("all enemies diving, skipping");
+          return;
+        }
+
+        let diveBomber = Phaser.Utils.Array.GetRandom(availableDivers);
+
 
         // first stop the current tween, we will then add a new one to replace it
         let diveBomberTweens = this.tweens.getTweensOf(diveBomber);
@@ -56,17 +70,60 @@ class testScene extends Scene {
           timeline.destroy();
         });
 
+        diveBomber.setData("diving", "true");
+
 
         // create a new timeline for the new tween
         let diveBombTimeline = this.tweens.createTimeline();
 
         diveBombTimeline.add({
           targets: diveBomber,
-          x: 700,
-          y: 700,
+          // add randomness to where the enemy ship dives to.
+          // the current formula dives to a point calculated by a normal distribution
+          // where the mean is half a ship length away. the ship can dive left or right of the ship by some
+          // random offset calculated by a normal curve
+          x: this.ship.x + Phaser.Math.Between(0, this.ship.width * 4) * Phaser.Math.RND.normal(),
+          y: this.ship.y,
           duration: 1000,
           yoyo: true,
-          repeat: -1
+          onComplete: () => {
+            diveBomber.setData("diving", "false");
+
+            // create the new timelines to allow the ship to continue its original path
+            // NOTE: offset value is used to avoid tween being slightly out of sync with other ships
+            let defaultTimelineX = this.tweens.createTimeline();
+            defaultTimelineX.add({
+              targets: diveBomber,
+              x: "+=100",
+              duration: 500,
+              ease: "Sine.InOut",
+              yoyo: true,
+              repeat: -1,
+            });
+
+            let defaultTimelineY = this.tweens.createTimeline();
+            defaultTimelineY.add({
+              targets: diveBomber,
+              y: "+=50",
+              duration: 250,
+              ease: "Sine.InOut",
+              yoyo: true,
+              repeat: -1,
+              loop: -1,
+            });
+            defaultTimelineY.add({
+              targets: diveBomber,
+              y: "-=50",
+              duration: 250,
+              ease: "Sine.InOut",
+              yoyo: true,
+              repeat: -1,
+              loop: -1,
+            });
+
+            defaultTimelineX.play();
+            defaultTimelineY.play();
+          }
         });
 
         diveBombTimeline.play();
@@ -74,7 +131,11 @@ class testScene extends Scene {
       callbackScope: this
     });
 
+
+    // create collision detection between enemies and player lasers
     this.physics.add.overlap(this.enemyGroup, this.laserGroup, this.laserCollision, null, this);
+
+    // create collision detection between player ship and enemy ships
     this.physics.add.overlap(this.ship, this.enemyGroup, this.playerEnemyBodyCollision, null, this);
 
 
@@ -98,6 +159,9 @@ class testScene extends Scene {
 
       enemyTimelinesX.push(enemyTimelineX);
 
+      // the y tween is composed of two smaller tweens:
+      // moving down for half the time and moving back up for half the time
+      // this creates the semicircle effect
       let enemyTimelineY = this.tweens.createTimeline();
       enemyTimelineY.add({
         targets: enemy,
@@ -127,10 +191,15 @@ class testScene extends Scene {
   }
 
   laserCollision(enemy, laser) {
+
+    // disable the enemy and the laser that collided
     enemy.setActive(false);
     enemy.setVisible(false);
     laser.setActive(false);
     laser.setVisible(false);
+
+    // this line is important so that the spot where the enemy was hit
+    // does not keep absorbing lasers
     enemy.disableBody(true, true);
   }
 
