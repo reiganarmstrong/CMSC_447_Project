@@ -1,6 +1,7 @@
 import { Scene } from "phaser";
 import LaserGroup from "./helperClasses/LaserGroup";
 import EnemyGroup from "./helperClasses/EnemyGroup";
+import EnemyLaserGroup from "./helperClasses/EnemyLaserGroup";
 class testScene extends Scene {
   constructor(config) {
     super(config);
@@ -25,7 +26,9 @@ class testScene extends Scene {
   create() {
     this.add.image(512, 384, "sky");
     this.laserGroup = new LaserGroup(this);
+
     this.enemyGroup = new EnemyGroup(this);
+    this.enemyLaserGroup = new EnemyLaserGroup(this);
 
     this.laserGroup.physicsType = Phaser.Physics.ARCADE;
     this.enemyGroup.physicsType = Phaser.Physics.ARCADE;
