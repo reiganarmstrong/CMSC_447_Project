@@ -20,7 +20,7 @@ class testScene extends Scene {
     this.load.image("ship_right", "assets/png/ship_right.png");
     this.load.image("missile", "assets/png/missile.png");
     this.load.image("enemy1", "assets/png/enemy1.png");
-    this.load.image("enemyLaser", "assets/png/missile.png");
+    this.load.image("enemyLaser", "assets/png/enemyLaser.png");
     this.load.image("sky", "assets/png/sky.png");
   }
 
