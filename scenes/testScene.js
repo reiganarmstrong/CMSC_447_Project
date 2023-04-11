@@ -157,6 +157,9 @@ class testScene extends Scene {
     // create collision detection between player ship and enemy ships
     this.physics.add.overlap(this.ship, this.enemyGroup, this.playerEnemyBodyCollision, null, this);
 
+    // create collision detection between enemy shots and player ship
+    this.physics.add.overlap(this.ship, this.enemyLaserGroup, this.enemyLaserCollision, null, this);
+
 
     // see https://rexrainbow.github.io/phaser3-rex-notes/docs/site/tween/
     // for relative tweening
@@ -220,6 +223,15 @@ class testScene extends Scene {
     // this line is important so that the spot where the enemy was hit
     // does not keep absorbing lasers
     enemy.disableBody(true, true);
+  }
+
+  enemyLaserCollision(player, enemyLaser) {
+    // disable the laser that collided
+    enemyLaser.setActive(false);
+    enemyLaser.setVisible(false);
+    enemyLaser.disableBody(true, true);
+
+    console.log(`player hit with enemy laser`);
   }
 
   playerEnemyBodyCollision(player, enemy) {
