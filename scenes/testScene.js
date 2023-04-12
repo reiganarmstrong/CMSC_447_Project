@@ -69,7 +69,7 @@ class testScene extends Scene {
         // first stop the current tween, we will then add a new one to replace it
         let diveBomberTweens = this.tweens.getTweensOf(diveBomber);
         diveBomberTweens.forEach((timeline) => {
-          console.log(`type: ${timeline.constructor.name}`);
+          // console.log(`type: ${timeline.constructor.name}`);
           timeline.stop();
           timeline.destroy();
         });
@@ -139,10 +139,10 @@ class testScene extends Scene {
     // add an event for each enemy to shoot between an interval
     this.enemyGroup.getChildren().forEach((enemy) => {
       this.time.addEvent({
-        delay: Phaser.Math.FloatBetween(3, 7) * 1000,
+        delay: Phaser.Math.FloatBetween(3000, 7000),
         loop: true,
         callback: () => {
-          console.log(`enemy shooting: ${enemy}`);
+          // console.log(`enemy shooting: ${enemy}`);
           if (enemy.active) {
             this.enemyLaserGroup.fireLaser(enemy.x, enemy.y + 48, enemy.body.velocity.x, 300);
           }
@@ -205,7 +205,7 @@ class testScene extends Scene {
       });
       enemyTimelinesY.push(enemyTimelineY);
 
-      console.log("added tween");
+      // console.log("added tween");
     });
 
     enemyTimelinesX.forEach((timeline) => { timeline.play(); });
@@ -215,33 +215,18 @@ class testScene extends Scene {
   laserCollision(enemy, laser) {
 
     // disable the enemy and the laser that collided
-    enemy.setActive(false);
-    enemy.setVisible(false);
-    laser.setActive(false);
-    laser.setVisible(false);
-
-    // this line is important so that the spot where the enemy was hit
-    // does not keep absorbing lasers
     enemy.disableBody(true, true);
+    laser.disableBody(true, true);
+
   }
 
   enemyLaserCollision(player, enemyLaser) {
     // disable the laser that collided
-    enemyLaser.setActive(false);
-    enemyLaser.setVisible(false);
     enemyLaser.disableBody(true, true);
-
-    console.log(`player hit with enemy laser`);
   }
 
   playerEnemyBodyCollision(player, enemy) {
-    console.log("player collided with enemy body");
-    /*
-    player.setActive(false);
-    player.setVisible(false);
-    enemy.setActive(false);
-    enemy.setVisible(false);
-    */
+    // console.log("player collided with enemy body");
   }
 
   update() {

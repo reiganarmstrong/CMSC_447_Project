@@ -16,7 +16,8 @@ class EnemyLaser extends Phaser.Physics.Arcade.Sprite {
   }
 
   fire(x, y, xVel, yVel) {
-    this.body.reset(x, y);
+    // this.body.reset(x, y);
+    this.enableBody(true, x, y, true, true);
     this.setActive(true);
     this.setVisible(true);
 
