@@ -26,11 +26,11 @@ class levelSelectorScene extends Scene {
     selector.parent.classList.add("centered-container");
     level1.addEventListener("click", () => {
       console.log("Level 1 Selected");
-      this.scene.start("testScene", this.userData);
+      this.scene.start("testScene1", this.userData);
     });
     level2.addEventListener("click", () => {
       console.log("Level 2 Selected");
-      this.scene.start("testScene", this.userData);
+      this.scene.start("testScene2", this.userData);
     });
     level3.addEventListener("click", () => {
       console.log("Level 3 Selected");

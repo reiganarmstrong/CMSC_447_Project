@@ -2,10 +2,10 @@ import { Scene } from "phaser";
 import LaserGroup from "./helperClasses/LaserGroup";
 import EnemyGroup from "./helperClasses/EnemyGroup";
 import EnemyLaserGroup from "./helperClasses/EnemyLaserGroup";
-class testScene extends Scene {
+class testScene2 extends Scene {
   constructor(config) {
     super(config);
-    Phaser.Scene.call(this, { key: "testScene" });
+    Phaser.Scene.call(this, { key: "testScene2" });
   }
 
   init(userData) {
@@ -47,7 +47,6 @@ class testScene extends Scene {
       delay: 3000, // every 10 seconds
       loop: true,
       callback: () => {
-
         // don't want to tell an enemy to divebomb when it is already in the middle of that
         // first, collect all of the enemies that are not currently diving and pick randomly from that
         let availableDivers = [];
@@ -65,7 +64,6 @@ class testScene extends Scene {
 
         let diveBomber = Phaser.Utils.Array.GetRandom(availableDivers);
 
-
         // first stop the current tween, we will then add a new one to replace it
         let diveBomberTweens = this.tweens.getTweensOf(diveBomber);
         diveBomberTweens.forEach((timeline) => {
@@ -76,7 +74,6 @@ class testScene extends Scene {
 
         diveBomber.setData("diving", "true");
 
-
         // create a new timeline for the new tween
         let diveBombTimeline = this.tweens.createTimeline();
 
@@ -86,7 +83,10 @@ class testScene extends Scene {
           // the current formula dives to a point calculated by a normal distribution
           // where the mean is half a ship length away. the ship can dive left or right of the ship by some
           // random offset calculated by a normal curve
-          x: this.ship.x + Phaser.Math.Between(0, this.ship.width * 4) * Phaser.Math.RND.normal(),
+          x:
+            this.ship.x +
+            Phaser.Math.Between(0, this.ship.width * 4) *
+              Phaser.Math.RND.normal(),
           y: this.ship.y,
           duration: 1000,
           yoyo: true,
@@ -127,14 +127,13 @@ class testScene extends Scene {
 
             defaultTimelineX.play();
             defaultTimelineY.play();
-          }
+          },
         });
 
         diveBombTimeline.play();
       },
-      callbackScope: this
+      callbackScope: this,
     });
-
 
     // add an event for each enemy to shoot between an interval
     this.enemyGroup.getChildren().forEach((enemy) => {
@@ -144,28 +143,49 @@ class testScene extends Scene {
         callback: () => {
           // console.log(`enemy shooting: ${enemy}`);
           if (enemy.active) {
-            this.enemyLaserGroup.fireLaser(enemy.x, enemy.y + 48, enemy.body.velocity.x, 300);
+            this.enemyLaserGroup.fireLaser(
+              enemy.x,
+              enemy.y + 48,
+              enemy.body.velocity.x,
+              300
+            );
           }
         },
-        callbackScope: this
+        callbackScope: this,
       });
     });
 
     // create collision detection between enemies and player lasers
-    this.physics.add.overlap(this.enemyGroup, this.laserGroup, this.laserCollision, null, this);
+    this.physics.add.overlap(
+      this.enemyGroup,
+      this.laserGroup,
+      this.laserCollision,
+      null,
+      this
+    );
 
     // create collision detection between player ship and enemy ships
-    this.physics.add.overlap(this.ship, this.enemyGroup, this.playerEnemyBodyCollision, null, this);
+    this.physics.add.overlap(
+      this.ship,
+      this.enemyGroup,
+      this.playerEnemyBodyCollision,
+      null,
+      this
+    );
 
     // create collision detection between enemy shots and player ship
-    this.physics.add.overlap(this.ship, this.enemyLaserGroup, this.enemyLaserCollision, null, this);
-
+    this.physics.add.overlap(
+      this.ship,
+      this.enemyLaserGroup,
+      this.enemyLaserCollision,
+      null,
+      this
+    );
 
     // see https://rexrainbow.github.io/phaser3-rex-notes/docs/site/tween/
     // for relative tweening
     let enemyTimelinesX = [];
     let enemyTimelinesY = [];
-
 
     // add tweens to individual enemy ships
     this.enemyGroup.getChildren().forEach((enemy) => {
@@ -192,7 +212,7 @@ class testScene extends Scene {
         ease: "Sine.InOut",
         yoyo: true,
         repeat: -1,
-        loop: -1
+        loop: -1,
       });
       enemyTimelineY.add({
         targets: enemy,
@@ -201,23 +221,25 @@ class testScene extends Scene {
         ease: "Sine.InOut",
         yoyo: true,
         repeat: -1,
-        loop: -1
+        loop: -1,
       });
       enemyTimelinesY.push(enemyTimelineY);
 
       // console.log("added tween");
     });
 
-    enemyTimelinesX.forEach((timeline) => { timeline.play(); });
-    enemyTimelinesY.forEach((timeline) => { timeline.play(); });
+    enemyTimelinesX.forEach((timeline) => {
+      timeline.play();
+    });
+    enemyTimelinesY.forEach((timeline) => {
+      timeline.play();
+    });
   }
 
   laserCollision(enemy, laser) {
-
     // disable the enemy and the laser that collided
     enemy.disableBody(true, true);
     laser.disableBody(true, true);
-
   }
 
   enemyLaserCollision(player, enemyLaser) {
@@ -234,17 +256,17 @@ class testScene extends Scene {
 
     this.debugText.setText(
       "fps: " +
-      this.game.loop.actualFps.toString() +
-      "\n" +
-      "y: " +
-      this.ship.y +
-      "\n" +
-      "y velocity: " +
-      this.ship.body.velocity.y.toString() +
-      "\n" +
-      "x velocity: " +
-      this.ship.body.velocity.x.toString() +
-      "\n"
+        this.game.loop.actualFps.toString() +
+        "\n" +
+        "y: " +
+        this.ship.y +
+        "\n" +
+        "y velocity: " +
+        this.ship.body.velocity.y.toString() +
+        "\n" +
+        "x velocity: " +
+        this.ship.body.velocity.x.toString() +
+        "\n"
     );
 
     if (this.ship.y >= 734 && this.ship.body.velocity.y > 0) {
@@ -296,11 +318,11 @@ class testScene extends Scene {
       console.log("Esc detected, pausing game.");
       this.scene.launch("pauseMenuScene", {
         userData: this.userData,
-        sceneKey: "testScene",
+        sceneKey: "testScene2",
       });
       this.scene.pause();
     }
   }
 }
 
-export default testScene;
+export default testScene2;
