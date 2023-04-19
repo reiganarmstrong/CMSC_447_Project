@@ -1,10 +1,11 @@
 import Phaser from "phaser";
 import loginScene from "./loginScene";
-import testScene from "./testScene";
 import mainMenuScene from "./mainMenuScene";
 import levelSelectorScene from "./levelSelectorScene";
 import pauseMenuScene from "./pauseMenuScene";
 import highScoresScene from "./highScoresScene";
+import testScene2 from "./testScene2";
+import testScene1 from "./testScene1";
 
 const width = 1024;
 const height = 768;
@@ -24,11 +25,12 @@ const config = {
   parent: "app-container",
   scene: [
     loginScene,
-    testScene,
+    testScene1,
     mainMenuScene,
     levelSelectorScene,
     highScoresScene,
     pauseMenuScene,
+    testScene2,
   ],
 };
 
