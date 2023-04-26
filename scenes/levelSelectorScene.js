@@ -21,21 +21,30 @@ class levelSelectorScene extends Scene {
     const level1 = selector.getChildByID("level-1");
     const level2 = selector.getChildByID("level-2");
     const level3 = selector.getChildByID("level-3");
+    const levels = [level1, level2, level3];
     const back = selector.getChildByID("back");
     user.textContent = this.userData.name;
     selector.parent.classList.add("centered-container");
-    level1.addEventListener("click", () => {
-      console.log("Level 1 Selected");
-      this.scene.start("testScene1", this.userData);
-    });
-    level2.addEventListener("click", () => {
-      console.log("Level 2 Selected");
-      this.scene.start("testScene2", this.userData);
-    });
-    level3.addEventListener("click", () => {
-      console.log("Level 3 Selected");
-      this.scene.start("testScene", this.userData);
-    });
+
+    for (let i = 0; i < levels.length; i++) {
+      let unlocked = i + 1 <= this.userData["level"];
+      levels[i].addEventListener("click", () => {
+        console.log(`Level ${i + 1} Selected`);
+        if (unlocked) {
+          if (i == 0) {
+            this.scene.start("testScene1", this.userData);
+          } else if (i == 1) {
+            this.scene.start("testScene1", this.userData);
+          } else if (i == 2) {
+            this.scene.start("testScene2", this.userData);
+          }
+        }
+      });
+      if (!unlocked) {
+        levels[i].classList.add("set-invisible");
+      }
+    }
+
     back.addEventListener("click", () => {
       this.scene.start("mainMenuScene", this.userData);
     });
