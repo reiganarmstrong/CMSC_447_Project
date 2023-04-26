@@ -83,27 +83,27 @@ class testScene extends Scene {
         let diveBombTimeline = this.tweens.createTimeline();
 
         var side = Number(diveBomber.x > 512)
-        var rot = Number(6*3.2 * Math.pow(-1, side))
+        var rot = Number(3.2 * Math.pow(-1, side))
         var timepoint = 0;
         var started = 0;
         var start_y = diveBomber.y;
         console.log("haha" + start_y)
-        
+
         diveBombTimeline.add({
           /*onStart: () => {
             diveBomber.setRotation(180);
           },*/
-            targets: diveBomber,
-          duration: 7000,
+	        targets: diveBomber,
+          duration: 6000,
           rotation: rot,
           // random offset calculated by a normal curve
           //bounce: 0,
           //x: 1,
           //x: this.ship.x + Phaser.Math.Between(0, this.ship.width * 4) * Phaser.Math.RND.normal(),      
           //y: this.ship.y,
-            //diveBomber.body.velocity.y: 200,
+	        //diveBomber.body.velocity.y: 200,
           //yoyo: true,
-        
+
           onUpdate: () => {
             //frankly idk how time works in this
             timepoint += 30;
@@ -118,7 +118,7 @@ class testScene extends Scene {
               //you CAN'T do it like this!!
               //if((start_y + 100) >= diveBomber.y >= start_y){
               //you HAVE to do it like this
-              if((start_y + 1) >= diveBomber.y && diveBomber.y >= start_y){
+              if((start_y + 20) >= diveBomber.y && diveBomber.y >= start_y){
                 diveBomber.setVelocityY(0)
                 //this is EXACTLY how you freaking do it
                 //the velocity refers to the distance you're going to move in the next update (i'm pretty sure)
@@ -127,19 +127,14 @@ class testScene extends Scene {
                 diveBomber.setRotation(0)
               }
               else{
-                diveBomber.setVelocityY(200)
-                //diveBomber.setVelocityY(300*Math.sin(((diveBomber.body.rotation+90)/3/*-180*/)*(Math.PI/180)));
-                diveBomber.setVelocityX(Math.pow(1, side)*300*Math.cos(2*(diveBomber.body.rotation+90/*-180*/)*(Math.PI/180)));     
-              }
-              if(diveBomber.y > 800){
-                diveBomber.y -= 850
+                diveBomber.setVelocityY(300*Math.sin((diveBomber.body.rotation+90/*-180*/)*(Math.PI/180)));
+                diveBomber.setVelocityX(Math.pow(-1, side)*300*Math.cos(2*(diveBomber.body.rotation+90/*-180*/)*(Math.PI/180)));     
               }
             }
             else{
-              diveBomber.setVelocityY(200)
-              //diveBomber.setVelocityY(300*Math.sin(((diveBomber.body.rotation+90)/3/*-180*/)*(Math.PI/180)));    
-              diveBomber.setVelocityX(Math.pow(1, side)*300*Math.cos(2*(diveBomber.body.rotation+90/*-180*/)*(Math.PI/180)));     
-              if(diveBomber.y > start_y + 30){
+              diveBomber.setVelocityY(300*Math.sin((diveBomber.body.rotation+90/*-180*/)*(Math.PI/180)));    
+              diveBomber.setVelocityX(Math.pow(-1, side)*300*Math.cos(2*(diveBomber.body.rotation+90/*-180*/)*(Math.PI/180)));     
+              if(diveBomber.y > start_y + 20){
                 started = 1;
               }    
             }
@@ -284,7 +279,7 @@ class testScene extends Scene {
     }
     if (this.keys.UP.isDown) {
       //this.ship.setVelocityY(this.ship.body.velocity.y - 4);
-      this.ship.setVelocityY(400 - this.ship.y);
+      this.ship.setVelocityY(450 - this.ship.y);
       //this.ship.setVelocityY(-200*Math.sin((90 + this.ship.body.rotation)*(Math.PI/180)));
       //this.ship.setVelocityX(-200*Math.cos((90 + this.ship.body.rotation)*(Math.PI/180)));
     }
@@ -292,7 +287,7 @@ class testScene extends Scene {
       /*if (this.ship.y < 734) {
         this.ship.setVelocityY(this.ship.body.velocity.y + 4);
       }*/
-      this.ship.setVelocityY(2*(734 - this.ship.y));
+      this.ship.setVelocityY(834 - this.ship.y);
     }
     if (this.keys.LEFT.isDown && !this.keys.RIGHT.isDown) {
       if (this.ship.body.velocity.x > 400) {
@@ -300,7 +295,7 @@ class testScene extends Scene {
       } else {
         this.ship.setTexture("ship_left");
       }
-      this.ship.setVelocityX(this.ship.body.velocity.x - 12);
+      this.ship.setVelocityX(this.ship.body.velocity.x - 14);
       //this.ship.body.rotation -= 2;
     }
     if (this.keys.RIGHT.isDown && !this.keys.LEFT.isDown) {
@@ -309,7 +304,7 @@ class testScene extends Scene {
       } else {
         this.ship.setTexture("ship_right");
       }
-      this.ship.setVelocityX(this.ship.body.velocity.x + 12);
+      this.ship.setVelocityX(this.ship.body.velocity.x + 14);
       //this.ship.body.rotation += 2;
     }
     if (!this.keys.RIGHT.isDown && !this.keys.LEFT.isDown) {
