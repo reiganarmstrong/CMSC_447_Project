@@ -23,6 +23,8 @@ class testScene2 extends Scene {
     this.load.image("enemyLaser", "assets/png/enemyLaser.png");
     this.load.image("sky", "assets/png/sky.png");
     this.load.image("space4", "assets/png/space4.png");
+    this.load.audio("start_sound", "assets/audio/start_sound.mp3");
+    this.load.audio("level_sound", "assets/audio/level_music.mp3");
   }
 
   create() {
@@ -235,7 +237,16 @@ class testScene2 extends Scene {
     enemyTimelinesY.forEach((timeline) => {
       timeline.play();
     });
-  }
+    const strtS = this.sound.add("start_sound");
+    const lvlS = this.sound.add("level_sound");
+    strtS.play();
+    strtS.on('complete', function() {
+      lvlS.play();
+      lvlS.setVolume(0.5);
+      lvlS.setLoop(true);
+    }.bind(this));
+
+  } //end of create function
 
   laserCollision(enemy, laser) {
     // disable the enemy and the laser that collided
