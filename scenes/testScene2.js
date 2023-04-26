@@ -22,10 +22,11 @@ class testScene2 extends Scene {
     this.load.image("enemy1", "assets/png/enemy1.png");
     this.load.image("enemyLaser", "assets/png/enemyLaser.png");
     this.load.image("sky", "assets/png/sky.png");
+    this.load.image("space4", "assets/png/space4.png");
   }
 
   create() {
-    this.add.image(512, 384, "sky");
+    this.add.image(512, 384, "space4");
     this.laserGroup = new LaserGroup(this);
 
     this.enemyGroup = new EnemyGroup(this);

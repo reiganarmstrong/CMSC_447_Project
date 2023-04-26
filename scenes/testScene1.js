@@ -18,10 +18,13 @@ class testScene1 extends Scene {
     this.load.image("ship_right", "assets/png/ship_right.png");
     this.load.image("missile", "assets/png/missile.png");
     this.load.image("sky", "assets/png/sky.png");
+    this.load.image("space", "assets/png/space.png");
+    this.load.image("space2", "assets/png/space2.png");
+    this.load.image("space3", "assets/png/space3.png");
   }
 
   create() {
-    this.add.image(512, 384, "sky");
+    this.add.image(512, 384, "space3");
     this.laserGroup = new LaserGroup(this);
     this.keys = this.input.keyboard.addKeys("LEFT,RIGHT,UP,DOWN,SPACE,ESC");
     this.ship = this.physics.add.image(512, 700, "ship");
