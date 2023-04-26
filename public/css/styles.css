@@ -128,3 +128,7 @@ input {
   padding-bottom: 0.5rem;
   font-size: 1rem;
 }
+
+.set-invisible {
+  visibility: hidden;
+}
