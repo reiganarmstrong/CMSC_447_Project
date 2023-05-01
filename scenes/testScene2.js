@@ -28,7 +28,30 @@ class testScene2 extends Scene {
   }
 
   create() {
-    this.add.image(512, 384, "space4");
+    //this.add.image(512, 384, "space4");
+    const colors = [0x000000, 0x220033, 0x440066, 0x660099];
+    //holds the width and the height of the game screen
+    const width = this.game.config.width;
+    const height = this.game.config.height;
+    // Create a new Graphics object and draw the gradient
+    this.add.graphics()
+    .fillGradientStyle(...colors, 1, 0.5, 0.5, 1, false)
+    .fillRect(0, 0, width, height);
+      //makes sure it covers the whole screen
+    // Define an array of colors for the stars
+    const starColors = [0xffffff, 0xffd700, 0xff69b4, 0x00ff00, 0x00ffff];
+    //Background Stars
+    for (let i = 0; i < 100; i++) {
+        //Phaser.Math.Between picks a random val between min and max
+        const x = Phaser.Math.Between(0, width);
+        const y = Phaser.Math.Between(0, height);
+        const size = Phaser.Math.Between(1, 3);
+        //picks random value from arr
+        const star = Phaser.Math.RND.pick(starColors);
+        this.add.graphics()
+            .fillStyle(star, 1)
+            .fillCircle(x, y, size);
+    }
     this.laserGroup = new LaserGroup(this);
 
     this.enemyGroup = new EnemyGroup(this);
@@ -245,7 +268,6 @@ class testScene2 extends Scene {
       lvlS.setVolume(0.5);
       lvlS.setLoop(true);
     }.bind(this));
-
   } //end of create function
 
   laserCollision(enemy, laser) {
