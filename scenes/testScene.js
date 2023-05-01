@@ -30,6 +30,8 @@ class testScene extends Scene {
   create() {
     this.game_start_time = this.add.Number;
     this.game_start_time = this.time.now;
+    
+    this.time_remaining = this.add.Number;
 
     this.add.image(512, 384, "sky");
     this.laserGroup = new LaserGroup(this);
@@ -530,8 +532,10 @@ class testScene extends Scene {
       //enemyTimelinesY.forEach((timeline) => { timeline.play(); });
     }
 
+    this.time_remaining = Math.max(0, Number(60 - (this.time.now - this.game_start_time)/1000).toFixed(2)); 
+
     this.scoreText.setText("kill count: " + this.kill_count + "\n" +
-    "time: " + Number((this.time.now - this.game_start_time)/1000).toFixed(2));
+    "time: " + this.time_remaining);
 
     this.debugText.setText(
       "fps: " +
