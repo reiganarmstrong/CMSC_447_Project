@@ -47,6 +47,7 @@ class pauseMenuScene extends Scene {
     this.scene.stop();
   }
   restartLevel() {
+    //scene stop might not be necessary here
     this.scene.stop(this.levelKey);
     this.scene.start(this.levelKey);
   }
