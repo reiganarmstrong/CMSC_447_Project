@@ -35,22 +35,22 @@ class testScene2 extends Scene {
     const height = this.game.config.height;
     // Create a new Graphics object and draw the gradient
     this.add.graphics()
-    .fillGradientStyle(...colors, 1, 0.5, 0.5, 1, false)
-    .fillRect(0, 0, width, height);
-      //makes sure it covers the whole screen
+      .fillGradientStyle(...colors, 1, 0.5, 0.5, 1, false)
+      .fillRect(0, 0, width, height);
+    //makes sure it covers the whole screen
     // Define an array of colors for the stars
     const starColors = [0xffffff, 0xffd700, 0xff69b4, 0x00ff00, 0x00ffff];
     //Background Stars
     for (let i = 0; i < 100; i++) {
-        //Phaser.Math.Between picks a random val between min and max
-        const x = Phaser.Math.Between(0, width);
-        const y = Phaser.Math.Between(0, height);
-        const size = Phaser.Math.Between(1, 3);
-        //picks random value from arr
-        const star = Phaser.Math.RND.pick(starColors);
-        this.add.graphics()
-            .fillStyle(star, 1)
-            .fillCircle(x, y, size);
+      //Phaser.Math.Between picks a random val between min and max
+      const x = Phaser.Math.Between(0, width);
+      const y = Phaser.Math.Between(0, height);
+      const size = Phaser.Math.Between(1, 3);
+      //picks random value from arr
+      const star = Phaser.Math.RND.pick(starColors);
+      this.add.graphics()
+        .fillStyle(star, 1)
+        .fillCircle(x, y, size);
     }
     this.laserGroup = new LaserGroup(this);
 
@@ -60,7 +60,7 @@ class testScene2 extends Scene {
     this.laserGroup.physicsType = Phaser.Physics.ARCADE;
     this.enemyGroup.physicsType = Phaser.Physics.ARCADE;
 
-    this.keys = this.input.keyboard.addKeys("LEFT,RIGHT,UP,DOWN,SPACE,ESC");
+    this.keys = this.input.keyboard.addKeys("LEFT,RIGHT,UP,DOWN,SPACE,ESC,G");
     this.ship = this.physics.add.image(512, 700, "ship");
     //this.ship.setCollideWorldBounds(true);
 
@@ -77,9 +77,11 @@ class testScene2 extends Scene {
         // first, collect all of the enemies that are not currently diving and pick randomly from that
         let availableDivers = [];
         enemies.getChildren().forEach((enemy) => {
+          console.log(enemy.body.velocity.x);
           if (enemy.active && enemy.getData("diving") !== "true") {
             availableDivers.push(enemy);
           }
+          console.log(enemy.body.velocity.y);
         });
 
         // if all enemies are diving, wait for next callback
@@ -94,8 +96,9 @@ class testScene2 extends Scene {
         let diveBomberTweens = this.tweens.getTweensOf(diveBomber);
         diveBomberTweens.forEach((timeline) => {
           // console.log(`type: ${timeline.constructor.name}`);
-          timeline.stop();
-          timeline.destroy();
+          //recent
+          //timeline.stop();
+          //timeline.destroy();
         });
 
         diveBomber.setData("diving", "true");
@@ -103,59 +106,73 @@ class testScene2 extends Scene {
         // create a new timeline for the new tween
         let diveBombTimeline = this.tweens.createTimeline();
 
+        var side = Number(diveBomber.x > 512)
+        var rot = Number(3.2 * Math.pow(-1, side))
+        var timepoint = 0;
+        var started = 0;
+        var start_y = diveBomber.y;
+        console.log("haha" + start_y)
+
         diveBombTimeline.add({
+          /*onStart: () => {
+            diveBomber.setRotation(180);
+          },*/
           targets: diveBomber,
-          // add randomness to where the enemy ship dives to.
-          // the current formula dives to a point calculated by a normal distribution
-          // where the mean is half a ship length away. the ship can dive left or right of the ship by some
+          duration: 6000,
+          rotation: rot,
           // random offset calculated by a normal curve
-          x:
-            this.ship.x +
-            Phaser.Math.Between(0, this.ship.width * 4) *
-              Phaser.Math.RND.normal(),
-          y: this.ship.y,
-          duration: 1000,
-          yoyo: true,
+          //bounce: 0,
+          //x: 1,
+          //x: this.ship.x + Phaser.Math.Between(0, this.ship.width * 4) * Phaser.Math.RND.normal(),      
+          //y: this.ship.y,
+          //diveBomber.body.velocity.y: 200,
+          //yoyo: true,
+
+          onUpdate: () => {
+            //frankly idk how time works in this
+            timepoint += 30;
+            //this system log doesn't work somehow (because it's supposed to be console.log() you dingus)
+            //system.log("lol");
+            //these rotation lines just doesn't work
+            //diveBomber.setRotation(diveBomber.body.rotation + 0.0000000000001);
+            //diveBomber.body.rotation += 1
+            //diveBomber.setVelocityY((timepoint/2700) * 800 * Math.sin((diveBomber.body.rotation+90)*(Math.PI/180)));
+
+            if (started == 1) {
+              //you CAN'T do it like this!!
+              //if((start_y + 100) >= diveBomber.y >= start_y){
+              //you HAVE to do it like this
+              if ((start_y + 20) >= diveBomber.y && diveBomber.y >= start_y) {
+                diveBomber.setVelocityY(0)
+                //this is EXACTLY how you freaking do it
+                //the velocity refers to the distance you're going to move in the next update (i'm pretty sure)
+                diveBomber.y = start_y + diveBomber.body.velocity.y
+                diveBomber.setVelocityX(0)
+                diveBomber.setRotation(0)
+              }
+              else {
+                diveBomber.setVelocityY(300 * Math.sin((diveBomber.body.rotation + 90/*-180*/) * (Math.PI / 180)));
+                diveBomber.setVelocityX(Math.pow(-1, side) * 300 * Math.cos(2 * (diveBomber.body.rotation + 90/*-180*/) * (Math.PI / 180)));
+              }
+            }
+            else {
+              diveBomber.setVelocityY(300 * Math.sin((diveBomber.body.rotation + 90/*-180*/) * (Math.PI / 180)));
+              diveBomber.setVelocityX(Math.pow(-1, side) * 300 * Math.cos(2 * (diveBomber.body.rotation + 90/*-180*/) * (Math.PI / 180)));
+              if (diveBomber.y > start_y + 20) {
+                started = 1;
+              }
+            }
+          },
+
           onComplete: () => {
+            diveBomber.setVelocityY(0);
+            diveBomber.setVelocityX(0);
+            diveBomber.setRotation(0);
             diveBomber.setData("diving", "false");
-
-            // create the new timelines to allow the ship to continue its original path
-            // NOTE: offset value is used to avoid tween being slightly out of sync with other ships
-            let defaultTimelineX = this.tweens.createTimeline();
-            defaultTimelineX.add({
-              targets: diveBomber,
-              x: "+=100",
-              duration: 500,
-              ease: "Sine.InOut",
-              yoyo: true,
-              repeat: -1,
-            });
-
-            let defaultTimelineY = this.tweens.createTimeline();
-            defaultTimelineY.add({
-              targets: diveBomber,
-              y: "+=50",
-              duration: 250,
-              ease: "Sine.InOut",
-              yoyo: true,
-              repeat: -1,
-              loop: -1,
-            });
-            defaultTimelineY.add({
-              targets: diveBomber,
-              y: "-=50",
-              duration: 250,
-              ease: "Sine.InOut",
-              yoyo: true,
-              repeat: -1,
-              loop: -1,
-            });
-
-            defaultTimelineX.play();
-            defaultTimelineY.play();
           },
         });
 
+        console.log("lmao");
         diveBombTimeline.play();
       },
       callbackScope: this,
@@ -214,13 +231,14 @@ class testScene2 extends Scene {
     let enemyTimelinesY = [];
 
     // add tweens to individual enemy ships
+    // Idle movement of enemies
     this.enemyGroup.getChildren().forEach((enemy) => {
       let enemyTimelineX = this.tweens.createTimeline();
       enemyTimelineX.add({
         targets: enemy,
-        x: "+=100",
-        duration: 500,
-        ease: "Sine.InOut",
+        x: "+=40",
+        duration: 2000,
+        //ease: "Sine.InOut",
         yoyo: true,
         repeat: -1,
       });
@@ -230,28 +248,28 @@ class testScene2 extends Scene {
       // the y tween is composed of two smaller tweens:
       // moving down for half the time and moving back up for half the time
       // this creates the semicircle effect
-      let enemyTimelineY = this.tweens.createTimeline();
+      /*let enemyTimelineY = this.tweens.createTimeline();
       enemyTimelineY.add({
         targets: enemy,
-        y: "+=50",
+        //y: "+=50",
         duration: 250,
-        ease: "Sine.InOut",
+        //ease: "Sine.InOut",
         yoyo: true,
         repeat: -1,
         loop: -1,
       });
       enemyTimelineY.add({
         targets: enemy,
-        y: "-=50",
+        //y: "-=50",
         duration: 250,
-        ease: "Sine.InOut",
+        //ease: "Sine.InOut",
         yoyo: true,
         repeat: -1,
         loop: -1,
       });
-      enemyTimelinesY.push(enemyTimelineY);
+      //enemyTimelinesY.push(enemyTimelineY);
 
-      // console.log("added tween");
+      // console.log("added tween");*/
     });
 
     enemyTimelinesX.forEach((timeline) => {
@@ -263,7 +281,7 @@ class testScene2 extends Scene {
     const strtS = this.sound.add("start_sound");
     const lvlS = this.sound.add("level_sound");
     strtS.play();
-    strtS.on('complete', function() {
+    strtS.on('complete', function () {
       lvlS.play();
       lvlS.setVolume(0.5);
       lvlS.setLoop(true);
@@ -290,17 +308,17 @@ class testScene2 extends Scene {
 
     this.debugText.setText(
       "fps: " +
-        this.game.loop.actualFps.toString() +
-        "\n" +
-        "y: " +
-        this.ship.y +
-        "\n" +
-        "y velocity: " +
-        this.ship.body.velocity.y.toString() +
-        "\n" +
-        "x velocity: " +
-        this.ship.body.velocity.x.toString() +
-        "\n"
+      this.game.loop.actualFps.toString() +
+      "\n" +
+      "y: " +
+      this.ship.y +
+      "\n" +
+      "y velocity: " +
+      this.ship.body.velocity.y.toString() +
+      "\n" +
+      "x velocity: " +
+      this.ship.body.velocity.x.toString() +
+      "\n"
     );
 
     if (this.ship.y >= 734 && this.ship.body.velocity.y > 0) {
@@ -308,13 +326,15 @@ class testScene2 extends Scene {
     }
     if (this.keys.UP.isDown) {
       //this.ship.setVelocityY(this.ship.body.velocity.y - 4);
-      this.ship.setVelocityY(500 - this.ship.y);
+      this.ship.setVelocityY(450 - this.ship.y);
+      //this.ship.setVelocityY(-200*Math.sin((90 + this.ship.body.rotation)*(Math.PI/180)));
+      //this.ship.setVelocityX(-200*Math.cos((90 + this.ship.body.rotation)*(Math.PI/180)));
     }
     if (this.keys.DOWN.isDown) {
       /*if (this.ship.y < 734) {
         this.ship.setVelocityY(this.ship.body.velocity.y + 4);
       }*/
-      this.ship.setVelocityY(734 - this.ship.y);
+      this.ship.setVelocityY(834 - this.ship.y);
     }
     if (this.keys.LEFT.isDown && !this.keys.RIGHT.isDown) {
       if (this.ship.body.velocity.x > 400) {
@@ -322,7 +342,8 @@ class testScene2 extends Scene {
       } else {
         this.ship.setTexture("ship_left");
       }
-      this.ship.setVelocityX(this.ship.body.velocity.x - 10);
+      this.ship.setVelocityX(this.ship.body.velocity.x - 14);
+      //this.ship.body.rotation -= 2;
     }
     if (this.keys.RIGHT.isDown && !this.keys.LEFT.isDown) {
       if (this.ship.body.velocity.x < -400) {
@@ -330,7 +351,8 @@ class testScene2 extends Scene {
       } else {
         this.ship.setTexture("ship_right");
       }
-      this.ship.setVelocityX(this.ship.body.velocity.x + 10);
+      this.ship.setVelocityX(this.ship.body.velocity.x + 14);
+      //this.ship.body.rotation += 2;
     }
     if (!this.keys.RIGHT.isDown && !this.keys.LEFT.isDown) {
       this.ship.setTexture("ship");
@@ -355,6 +377,9 @@ class testScene2 extends Scene {
         sceneKey: "testScene2",
       });
       this.scene.pause();
+    }
+    if (this.keys.G.isDown) {
+      this.ship.body.rotation += 2;
     }
   }
 }
