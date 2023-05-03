@@ -297,6 +297,7 @@ class testScene extends Scene {
   playerEnemyBodyCollision(player, enemy) {
     this.ship_health -= 1;
     enemy.disableBody(true,true);
+    this.enemies_remaining -= 1;
     if(this.ship_health == 0){
       this.ship.disableBody(true,true);
     }
@@ -545,7 +546,7 @@ class testScene extends Scene {
     }
 
     if(this.ship_health != 0){
-      this.time_remaining = Math.max(0, Number(60 - (this.time.now - this.game_start_time)/1000).toFixed(2)); 
+      this.time_remaining = Math.max(0, Number(60 - (this.time.now - this.game_start_time)/1000).toFixed(2));
     }
 
     this.scoreText.setText("kill count: " + this.kill_count + "\n" +
