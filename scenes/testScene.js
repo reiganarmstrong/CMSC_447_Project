@@ -50,7 +50,7 @@ class testScene extends Scene {
     this.laserGroup.physicsType = Phaser.Physics.ARCADE;
     this.enemyGroup.physicsType = Phaser.Physics.ARCADE;
 
-    this.keys = this.input.keyboard.addKeys("LEFT,RIGHT,UP,DOWN,SPACE,ESC,G");
+    this.keys = this.input.keyboard.addKeys("LEFT,RIGHT,UP,DOWN,SPACE,ESC");
     this.ship = this.physics.add.image(512, 700, "ship");
     //this.ship.setCollideWorldBounds(true);
 
@@ -572,65 +572,68 @@ class testScene extends Scene {
       "\n"
     );
 
-    if (this.ship.y >= 734 && this.ship.body.velocity.y > 0) {
-      this.ship.body.velocity.y = 0;
-    }
-    if (this.keys.UP.isDown) {
-      //this.ship.setVelocityY(this.ship.body.velocity.y - 4);
-      this.ship.setVelocityY(400 - this.ship.y);
-      //this.ship.setVelocityY(-200*Math.sin((90 + this.ship.body.rotation)*(Math.PI/180)));
-      //this.ship.setVelocityX(-200*Math.cos((90 + this.ship.body.rotation)*(Math.PI/180)));
-    }
-    if (this.keys.DOWN.isDown) {
-      /*if (this.ship.y < 734) {
-        this.ship.setVelocityY(this.ship.body.velocity.y + 4);
-      }*/
-      this.ship.setVelocityY(2*(734 - this.ship.y));
-    }
-    if (this.keys.LEFT.isDown && !this.keys.RIGHT.isDown) {
-      if (this.ship.body.velocity.x > 400) {
-        this.ship.setTexture("ship");
-      } else {
-        this.ship.setTexture("ship_left");
+    if (this.ship_health != 0) {
+      if (this.ship.y >= 734 && this.ship.body.velocity.y > 0) {
+        this.ship.body.velocity.y = 0;
       }
-      this.ship.setVelocityX(this.ship.body.velocity.x - 12);
-      //this.ship.body.rotation -= 2;
-    }
-    if (this.keys.RIGHT.isDown && !this.keys.LEFT.isDown) {
-      if (this.ship.body.velocity.x < -400) {
-        this.ship.setTexture("ship");
-      } else {
-        this.ship.setTexture("ship_right");
+      if (this.keys.UP.isDown) {
+        //this.ship.setVelocityY(this.ship.body.velocity.y - 4);
+        this.ship.setVelocityY(400 - this.ship.y);
+        //this.ship.setVelocityY(-200*Math.sin((90 + this.ship.body.rotation)*(Math.PI/180)));
+        //this.ship.setVelocityX(-200*Math.cos((90 + this.ship.body.rotation)*(Math.PI/180)));
       }
-      this.ship.setVelocityX(this.ship.body.velocity.x + 12);
-      //this.ship.body.rotation += 2;
-    }
-    if (!this.keys.RIGHT.isDown && !this.keys.LEFT.isDown) {
-      this.ship.setTexture("ship");
-      this.ship.setVelocityX(this.ship.body.velocity.x * 0.98);
-    }
-    if (!this.keys.UP.isDown && !this.keys.DOWN.isDown) {
-      this.ship.setVelocityY(this.ship.body.velocity.y * 0.98);
-    }
+      if (this.keys.DOWN.isDown) {
+        /*if (this.ship.y < 734) {
+          this.ship.setVelocityY(this.ship.body.velocity.y + 4);
+        }*/
+        this.ship.setVelocityY(2*(734 - this.ship.y));
+      }
+      if (this.keys.LEFT.isDown && !this.keys.RIGHT.isDown) {
+        if (this.ship.body.velocity.x > 400) {
+          this.ship.setTexture("ship");
+        } else {
+          this.ship.setTexture("ship_left");
+        }
+        this.ship.setVelocityX(this.ship.body.velocity.x - 12);
+        //this.ship.body.rotation -= 2;
+      }
+      if (this.keys.RIGHT.isDown && !this.keys.LEFT.isDown) {
+        if (this.ship.body.velocity.x < -400) {
+          this.ship.setTexture("ship");
+        } else {
+          this.ship.setTexture("ship_right");
+        }
+        this.ship.setVelocityX(this.ship.body.velocity.x + 12);
+        //this.ship.body.rotation += 2;
+      }
+      if (!this.keys.RIGHT.isDown && !this.keys.LEFT.isDown) {
+        this.ship.setTexture("ship");
+        this.ship.setVelocityX(this.ship.body.velocity.x * 0.98);
+      }
+      if (!this.keys.UP.isDown && !this.keys.DOWN.isDown) {
+        this.ship.setVelocityY(this.ship.body.velocity.y * 0.98);
+      }
 
-    if (Phaser.Input.Keyboard.JustDown(this.keys.SPACE)) {
-      this.laserGroup.fireLaser(
-        this.ship.x + this.ship.body.velocity.x * 0.03,
-        this.ship.y - 48,
-        this.ship.body.velocity.x,
-        this.ship.body.velocity.y
-      );
+      if (Phaser.Input.Keyboard.JustDown(this.keys.SPACE)) {
+        this.laserGroup.fireLaser(
+          this.ship.x + this.ship.body.velocity.x * 0.03,
+          this.ship.y - 48,
+          this.ship.body.velocity.x,
+          this.ship.body.velocity.y
+        );
+      }
+      if (Phaser.Input.Keyboard.JustDown(this.keys.ESC)) {
+        console.log("Esc detected, pausing game.");
+        this.scene.launch("pauseMenuScene", {
+          userData: this.userData,
+          sceneKey: "testScene",
+        });
+        this.scene.pause();
+      }
     }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.ESC)) {
-      console.log("Esc detected, pausing game.");
-      this.scene.launch("pauseMenuScene", {
-        userData: this.userData,
-        sceneKey: "testScene",
-      });
-      this.scene.pause();
-    }
-    if (this.keys.G.isDown) {
-      this.ship.body.rotation += 2;
+    else {
+      this.ship.setVelocityX(0);
+      this.ship.setVelocityY(0);
     }
   }
 }
