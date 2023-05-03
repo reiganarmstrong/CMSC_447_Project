@@ -544,7 +544,9 @@ class testScene extends Scene {
       //enemyTimelinesY.forEach((timeline) => { timeline.play(); });
     }
 
-    this.time_remaining = Math.max(0, Number(60 - (this.time.now - this.game_start_time)/1000).toFixed(2)); 
+    if(this.ship_health != 0){
+      this.time_remaining = Math.max(0, Number(60 - (this.time.now - this.game_start_time)/1000).toFixed(2)); 
+    }
 
     this.scoreText.setText("kill count: " + this.kill_count + "\n" +
     "time: " + this.time_remaining + "\n" +
@@ -622,18 +624,18 @@ class testScene extends Scene {
           this.ship.body.velocity.y
         );
       }
-      if (Phaser.Input.Keyboard.JustDown(this.keys.ESC)) {
-        console.log("Esc detected, pausing game.");
-        this.scene.launch("pauseMenuScene", {
-          userData: this.userData,
-          sceneKey: "testScene",
-        });
-        this.scene.pause();
-      }
     }
     else {
       this.ship.setVelocityX(0);
       this.ship.setVelocityY(0);
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.keys.ESC)) {
+      console.log("Esc detected, pausing game.");
+      this.scene.launch("pauseMenuScene", {
+        userData: this.userData,
+        sceneKey: "testScene",
+      });
+      this.scene.pause();
     }
   }
 }
