@@ -43,7 +43,9 @@ class testScene extends Scene {
     this.kill_count = 0;
 
     this.enemies_remaining = this.add.Number;
-    this.enemies_remaining = 5;
+    this.enemies_remaining = 9;
+
+    this.ship_health = 3;
 
     this.laserGroup.physicsType = Phaser.Physics.ARCADE;
     this.enemyGroup.physicsType = Phaser.Physics.ARCADE;
@@ -60,7 +62,7 @@ class testScene extends Scene {
     let enemies = this.enemyGroup;
     this.time.addEvent({
       //delay: 3000, // every 10 seconds
-      delay: 6000,
+      delay: 500,
       loop: true,
       callback: () => {
 
@@ -285,21 +287,31 @@ class testScene extends Scene {
 
   enemyLaserCollision(player, enemyLaser) {
     // disable the laser that collided
+    this.ship_health -= 1;
     enemyLaser.disableBody(true, true);
+    if(this.ship_health == 0){
+      this.ship.disableBody(true,true);
+    }
   }
 
   playerEnemyBodyCollision(player, enemy) {
+    this.ship_health -= 1;
+    enemy.disableBody(true,true);
+    if(this.ship_health == 0){
+      this.ship.disableBody(true,true);
+    }
     // console.log("player collided with enemy body");
   }
 
   update() {
     this.physics.world.wrap(this.ship);
 
+
     if(this.enemies_remaining == 0){
       //this.enemyGroup.destroy();
       //this.enemyLaserGroup.destroy();
 
-      this.enemies_remaining = 5;
+      this.enemies_remaining = 9;
 
       this.enemyGroup = new EnemyGroup(this);
       this.enemyLaserGroup = new EnemyLaserGroup(this);
@@ -318,7 +330,7 @@ class testScene extends Scene {
       let enemies = this.enemyGroup;
       this.time.addEvent({
         //delay: 3000, // every 10 seconds
-        delay: 6000,
+        delay: 500,
         loop: true,
         callback: () => {
   
@@ -535,7 +547,8 @@ class testScene extends Scene {
     this.time_remaining = Math.max(0, Number(60 - (this.time.now - this.game_start_time)/1000).toFixed(2)); 
 
     this.scoreText.setText("kill count: " + this.kill_count + "\n" +
-    "time: " + this.time_remaining);
+    "time: " + this.time_remaining + "\n" +
+    "health: " + this.ship_health);
 
     this.debugText.setText(
       "fps: " +

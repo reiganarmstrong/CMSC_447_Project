@@ -17,6 +17,16 @@ class EnemyGroup extends Phaser.Physics.Arcade.Group {
 			key: "enemy1",
 		});
 
+		this.createMultiple({
+			classType: Enemy,
+			frameQuantity: 4,
+			//setXY: { x: 80, y: 70, stepX: 200, stepY: 0 },
+			setXY: { x: 280, y: 140, stepX: 160, stepY: 0 },
+			active: true,
+			visible: true,
+			key: "enemy1",
+		});
+
 	}
 
 }
