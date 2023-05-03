@@ -23,6 +23,7 @@ class testScene3 extends Scene {
     this.load.image("enemyLaser", "assets/png/enemyLaser.png");
     this.load.image("sky", "assets/png/sky.png");
     this.load.image("shield", "assets/png/shield.png");
+    this.load.image("shieldPowerup", "assets/png/shieldPowerup.png");
   }
 
   create() {
@@ -37,11 +38,15 @@ class testScene3 extends Scene {
 
     this.keys = this.input.keyboard.addKeys("LEFT,RIGHT,UP,DOWN,SPACE,ESC");
     this.ship = this.physics.add.image(512, 700, "ship");
+    this.shieldPowerup = this.physics.add.image(
+      Math.floor(Math.random() * 990 + 34),
+      Math.floor(Math.random() * 200 + 500),
+      "shieldPowerup"
+    );
     //this.ship.setCollideWorldBounds(true);
     this.debugText = this.add.text(16, 16, "hello");
 
     this.shieldUp = false;
-    this.createShield();
 
     // dive bombing code:
 
@@ -126,10 +131,8 @@ class testScene3 extends Scene {
     }
     if (this.shieldUp) {
       this.physics.world.wrap(this.shield);
-      this.shield.body.setVelocity(
-        this.ship.body.velocity.x,
-        this.ship.body.velocity.y
-      );
+      this.shield.body.x = this.ship.body.x - 48 / 2;
+      this.shield.body.y = this.ship.body.y - 52 / 2;
     }
     if (Phaser.Input.Keyboard.JustDown(this.keys.ESC)) {
       console.log("Esc detected, pausing game.");
@@ -226,6 +229,16 @@ class testScene3 extends Scene {
     });
 
     diveBombTimeline.play();
+
+    // refreshes shield powerup
+    this.shieldPowerup.setX(Math.floor(Math.random() * 990 + 34));
+    this.shieldPowerup.setY(Math.floor(Math.random() * 200 + 500));
+
+    if (!this.shieldPowerup.active) {
+      this.shieldPowerup.setActive(true);
+      this.shieldPowerup.enableBody();
+      this.shieldPowerup.setVisible(true);
+    }
   }
 
   createEnemyShotInterval() {
@@ -354,6 +367,33 @@ class testScene3 extends Scene {
       this
     );
 
+    this.physics.add.overlap(
+      this.ship,
+      this.shieldPowerup,
+      this.shieldPowerupCollision,
+      null,
+      this
+    );
+  }
+
+  shieldPowerupCollision(ship, shieldPowerup) {
+    if (this.shield != undefined) {
+      this.destroyShield();
+    }
+
+    shieldPowerup.setActive(false);
+    shieldPowerup.disableBody();
+    shieldPowerup.setVisible(false);
+    this.createShield();
+  }
+
+  createShield() {
+    this.shieldUp = true;
+    this.shield = this.physics.add.image(this.ship.x, this.ship.y, "shield");
+    this.shield.body.setVelocity(
+      this.ship.body.velocity.x,
+      this.ship.body.velocity.y
+    );
     // shield and enemy laser collision
     this.physics.add.overlap(
       this.shield,
@@ -370,15 +410,6 @@ class testScene3 extends Scene {
       this.shieldEnemyCollision,
       null,
       this
-    );
-  }
-
-  createShield() {
-    this.shieldUp = true;
-    this.shield = this.physics.add.image(this.ship.x, this.ship.y, "shield");
-    this.shield.body.setVelocity(
-      this.ship.body.velocity.x,
-      this.ship.body.velocity.y
     );
   }
 
