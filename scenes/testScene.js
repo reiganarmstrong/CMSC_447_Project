@@ -357,13 +357,13 @@ class testScene extends Scene {
   }
 
   update() {
+
+    console.log("paused: " + this.scene.isPaused("testScene"))
     //if game_start_time is 0 it means the scene has just been created. for some reason it doesn't work
     //properly if i do this in create(), since it gets all weird when you pause or return to the main menu
     if(this.game_start_time == 0){
       this.game_start_time = this.time.now;
     }
-
-    this.time_elapsed = this.time.now - this.time_paused - this.game_start_time;
 
     if(this.pause_start != this.last_pause_start && !this.scene.isPaused("testScene")){
       console.log("this thing happened");
@@ -372,6 +372,8 @@ class testScene extends Scene {
       //this.time_remaining += this.time.now - this.pause_start;
       //this.pause_start = 0;
     }
+
+    this.time_elapsed = this.time.now - this.time_paused - this.game_start_time;
 
     if(this.ship_health != 0){
       this.time_remaining = Math.max(0, Number(60 - (this.time_elapsed/1000)).toFixed(2));
@@ -388,11 +390,11 @@ class testScene extends Scene {
     if(this.time_remaining < 57 && !this.scene.isPaused("testScene")){
       this.ready_graphic.visible = false;
       this.fire_graphic.visible = true;
-      if(this.time_remaining < 56){
+      if(this.time_remaining < 56 && !this.scene.isPaused("testScene")){
         this.level_graphic.alpha -= 0.01;
         this.fire_graphic.alpha -= 0.01;
         //this.fire_graphic.visible = false;
-        if(this.time_remaining == 0){
+        if(this.time_remaining == 0 && !this.scene.isPaused("testScene")){
           this.time_up_graphic.visible = true;
         }
       }
@@ -618,7 +620,7 @@ class testScene extends Scene {
       this.ship.setVelocityY(this.ship.body.velocity.y - 10);
     }
 
-    if (this.ship_health != 0 && this.time_remaining != 0) {
+    if (this.ship_health != 0 && this.time_remaining != 0 /*&& !this.scene.isPaused*/) {
       if (this.ship.y >= 734 && this.ship.body.velocity.y > 0) {
         this.ship.body.velocity.y = 0;
       }
@@ -691,11 +693,11 @@ class testScene extends Scene {
         this.pause_start = this.time.now;        
       }
       console.log("Esc detected, pausing game.");
+      this.scene.pause();
       this.scene.launch("pauseMenuScene", {
         userData: this.userData,
         sceneKey: "testScene",
       });
-      this.scene.pause();
     }
   }
 }
