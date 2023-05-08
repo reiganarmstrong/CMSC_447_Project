@@ -2,6 +2,8 @@ import { Scene } from "phaser";
 import LaserGroup from "./helperClasses/LaserGroup";
 import EnemyGroup from "./helperClasses/EnemyGroup";
 import EnemyLaserGroup from "./helperClasses/EnemyLaserGroup";
+import deathMenuScene from "./deathMenuScene";
+import HeartGroup from "./helperClasses/HeartGroup";
 class testScene3 extends Scene {
   constructor(config) {
     super(config);
@@ -24,6 +26,7 @@ class testScene3 extends Scene {
     this.load.image("sky", "assets/png/sky.png");
     this.load.image("shield", "assets/png/shield.png");
     this.load.image("shieldPowerup", "assets/png/shieldPowerup.png");
+    this.load.image("heart", "assets/png/heart.png");
   }
 
   create() {
@@ -32,7 +35,7 @@ class testScene3 extends Scene {
 
     this.enemyGroup = new EnemyGroup(this);
     this.enemyLaserGroup = new EnemyLaserGroup(this);
-
+    this.initLives(3);
     this.laserGroup.physicsType = Phaser.Physics.ARCADE;
     this.enemyGroup.physicsType = Phaser.Physics.ARCADE;
 
@@ -67,6 +70,7 @@ class testScene3 extends Scene {
   }
 
   update() {
+    this.checkGameOver();
     this.physics.world.wrap(this.ship);
 
     this.debugText.setText(
@@ -323,10 +327,23 @@ class testScene3 extends Scene {
   enemyLaserCollision(player, enemyLaser) {
     // disable the laser that collided
     enemyLaser.disableBody(true, true);
+    this.decrementLives();
   }
 
   playerEnemyBodyCollision(player, enemy) {
-    // console.log("player collided with enemy body");
+    this.ship.x;
+    let enemyRangeX = [enemy.x - 15, enemy.x + 15];
+    let playerRangeX = [player.x - 15, player.x + 15];
+    let playerRangeY = [player.y - 26, player.y];
+    let enemyRangeY = [enemy.y - 32, enemy.y];
+    // sprite collision logic
+    if (
+      !(playerRangeY[1] < enemyRangeY[0] || enemyRangeY[1] < playerRangeY[0]) &&
+      !(playerRangeX[1] < enemyRangeX[0] || enemyRangeX[1] < playerRangeX[0])
+    ) {
+      this.decrementLives();
+      enemy.disableBody(true, true);
+    }
   }
 
   shieldLaserCollision(shield, enemyLaser) {
@@ -366,7 +383,7 @@ class testScene3 extends Scene {
       null,
       this
     );
-
+    // collision detection between ship and the shield powerup
     this.physics.add.overlap(
       this.ship,
       this.shieldPowerup,
@@ -381,9 +398,7 @@ class testScene3 extends Scene {
       this.destroyShield();
     }
 
-    shieldPowerup.setActive(false);
-    shieldPowerup.disableBody();
-    shieldPowerup.setVisible(false);
+    shieldPowerup.disableBody(true, true);
     this.createShield();
   }
 
@@ -403,7 +418,7 @@ class testScene3 extends Scene {
       this
     );
 
-    // shield and enemy laser collision
+    // shield and enemy collision
     this.physics.add.overlap(
       this.shield,
       this.enemyGroup,
@@ -416,6 +431,30 @@ class testScene3 extends Scene {
   destroyShield() {
     this.shieldUp = false;
     this.shield.destroy();
+  }
+  checkGameOver() {
+    if (this.lives == 0) {
+      this.scene.launch("deathMenuScene", {
+        userData: this.userData,
+        sceneKey: "testScene3",
+      });
+      this.scene.pause();
+    }
+  }
+  decrementLives() {
+    this.lives--;
+    let heart = this.heartGroup.getLastNth(1, true);
+    heart.setActive(false);
+    heart.setVisible(false);
+  }
+  initLives(lives) {
+    this.lives = lives;
+    this.heartGroup = new HeartGroup(this);
+    for (let i = 0; i < this.lives; i++) {
+      let hearts = this.heartGroup.getFirstDead();
+      hearts.setActive(true);
+      hearts.setVisible(true);
+    }
   }
 }
 

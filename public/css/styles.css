@@ -136,3 +136,8 @@ input:focus {
 .set-invisible {
   visibility: hidden;
 }
+
+.game-over {
+  color: red;
+  size: 2rem;
+}
