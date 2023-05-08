@@ -1,6 +1,9 @@
 import Phaser from "phaser";
 import loginScene from "./loginScene";
 import testScene from "./testScene";
+//import testScene1 from "./testScene1";
+//import testScene from "./testScene4";
+
 import mainMenuScene from "./mainMenuScene";
 import levelSelectorScene from "./levelSelectorScene";
 import pauseMenuScene from "./pauseMenuScene";
@@ -27,6 +30,8 @@ const config = {
   parent: "app-container",
   scene: [
     loginScene,
+    //testScene,
+    //testScene1,
     testScene,
     mainMenuScene,
     levelSelectorScene,

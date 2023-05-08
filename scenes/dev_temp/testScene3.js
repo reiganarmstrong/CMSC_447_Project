@@ -44,7 +44,7 @@ class testScene extends Scene {
 
     let enemies = this.enemyGroup;
     this.time.addEvent({
-      delay: 3000, // every 10 seconds
+      delay: 1000, // every 10 seconds
       loop: true,
       callback: () => {
 
