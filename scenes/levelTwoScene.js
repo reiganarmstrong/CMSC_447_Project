@@ -99,7 +99,12 @@ class levelTwoScene extends Scene {
     this.enemies_remaining = this.enemies_per_wave;
 
     this.ship_health = 5;
-
+    this.heartGroup = new HeartGroup(this);
+    for (let i = 0; i < this.ship_health; i++) {
+      let hearts = this.heartGroup.getFirstDead();
+      hearts.setActive(true);
+      hearts.setVisible(true);
+    }
     this.laserGroup.physicsType = Phaser.Physics.ARCADE;
     this.enemyGroup.physicsType = Phaser.Physics.ARCADE;
 
@@ -336,53 +341,16 @@ class levelTwoScene extends Scene {
   enemyLaserCollision(player, enemyLaser) {
     if (this.time_remaining != 0 && !this.scene.isPaused("levelTwoScene")) {
       // disable the laser that collided
-      this.ship_health -= 1;
-      if (this.ship_health == 4) {
-        this.health5.visible = false;
-      }
-      if (this.ship_health == 3) {
-        this.health4.visible = false;
-      }
-      if (this.ship_health == 2) {
-        this.health3.visible = false;
-      }
-      if (this.ship_health == 1) {
-        this.health2.visible = false;
-      }
-      if (this.ship_health == 0) {
-        this.health1.visible = false;
-      }
+      this.decrementHealth();
       enemyLaser.disableBody(true, true);
-      if (this.ship_health == 0) {
-        this.ship.disableBody(true, true);
-      }
     }
   }
 
   playerEnemyBodyCollision(player, enemy) {
     if (this.time_remaining != 0 && !this.scene.isPaused("levelTwoScene")) {
-      this.ship_health -= 1;
-      if (this.ship_health == 4) {
-        this.health5.visible = false;
-      }
-      if (this.ship_health == 3) {
-        this.health4.visible = false;
-      }
-      if (this.ship_health == 2) {
-        this.health3.visible = false;
-      }
-      if (this.ship_health == 1) {
-        this.health2.visible = false;
-      }
-      if (this.ship_health == 0) {
-        this.health1.visible = false;
-      }
+      this.decrementHealth();
 
       enemy.disableBody(true, true);
-      this.enemies_remaining -= 1;
-      if (this.ship_health == 0) {
-        this.ship.disableBody(true, true);
-      }
     }
     // console.log("player collided with enemy body");
   }
@@ -799,6 +767,13 @@ class levelTwoScene extends Scene {
       });
       this.scene.pause("levelTwoScene");
     }
+  }
+
+  decrementHealth() {
+    this.ship_health--;
+    let heart = this.heartGroup.getLastNth(1, true);
+    heart.setActive(false);
+    heart.setVisible(false);
   }
 }
 

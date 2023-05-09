@@ -2,7 +2,7 @@ import { Scene } from "phaser";
 import LaserGroup from "./helperClasses/LaserGroup";
 import EnemyGroup from "./helperClasses/EnemyGroup";
 import EnemyLaserGroup from "./helperClasses/EnemyLaserGroup";
-
+import HeartGroup from "./helperClasses/HeartGroup";
 class levelOneScene extends Scene {
   constructor(config) {
     super(config);
@@ -76,17 +76,6 @@ class levelOneScene extends Scene {
     this.fail_graphic = this.add.image(512, 350, "fail");
     this.fail_graphic.visible = false;
 
-    this.health1 = this.add.image(50, 730, "ship");
-    this.health1.scale = 0.7;
-    this.health2 = this.add.image(100, 730, "ship");
-    this.health2.scale = 0.7;
-    this.health3 = this.add.image(150, 730, "ship");
-    this.health3.scale = 0.7;
-    this.health4 = this.add.image(200, 730, "ship");
-    this.health4.scale = 0.7;
-    this.health5 = this.add.image(250, 730, "ship");
-    this.health5.scale = 0.7;
-
     this.laserGroup = new LaserGroup(this);
 
     this.enemyGroup = new EnemyGroup(this);
@@ -101,6 +90,12 @@ class levelOneScene extends Scene {
     this.enemies_remaining = this.enemies_per_wave;
 
     this.ship_health = 5;
+    this.heartGroup = new HeartGroup(this);
+    for (let i = 0; i < this.ship_health; i++) {
+      let hearts = this.heartGroup.getFirstDead();
+      hearts.setActive(true);
+      hearts.setVisible(true);
+    }
 
     this.laserGroup.physicsType = Phaser.Physics.ARCADE;
     this.enemyGroup.physicsType = Phaser.Physics.ARCADE;
@@ -323,54 +318,17 @@ class levelOneScene extends Scene {
 
   enemyLaserCollision(player, enemyLaser) {
     if (this.time_remaining != 0) {
-      // disable the laser that collided
-      this.ship_health -= 1;
-      if (this.ship_health == 4) {
-        this.health5.visible = false;
-      }
-      if (this.ship_health == 3) {
-        this.health4.visible = false;
-      }
-      if (this.ship_health == 2) {
-        this.health3.visible = false;
-      }
-      if (this.ship_health == 1) {
-        this.health2.visible = false;
-      }
-      if (this.ship_health == 0) {
-        this.health1.visible = false;
-      }
+      this.decrementHealth();
       enemyLaser.disableBody(true, true);
-      if (this.ship_health == 0) {
-        this.ship.disableBody(true, true);
-      }
     }
   }
 
   playerEnemyBodyCollision(player, enemy) {
     if (this.time_remaining != 0) {
-      this.ship_health -= 1;
-      if (this.ship_health == 4) {
-        this.health5.visible = false;
-      }
-      if (this.ship_health == 3) {
-        this.health4.visible = false;
-      }
-      if (this.ship_health == 2) {
-        this.health3.visible = false;
-      }
-      if (this.ship_health == 1) {
-        this.health2.visible = false;
-      }
-      if (this.ship_health == 0) {
-        this.health1.visible = false;
-      }
+      this.decrementHealth();
 
       enemy.disableBody(true, true);
       this.enemies_remaining -= 1;
-      if (this.ship_health == 0) {
-        this.ship.disableBody(true, true);
-      }
     }
     // console.log("player collided with enemy body");
   }
@@ -505,12 +463,6 @@ class levelOneScene extends Scene {
             onUpdate: () => {
               //frankly idk how time works in this
               timepoint += 30;
-              //this system log doesn't work somehow (because it's supposed to be console.log() you dingus)
-              //system.log("lol");
-              //these rotation lines just doesn't work
-              //diveBomber.setRotation(diveBomber.body.rotation + 0.0000000000001);
-              //diveBomber.body.rotation += 1
-              //diveBomber.setVelocityY((timepoint/2700) * 800 * Math.sin((diveBomber.body.rotation+90)*(Math.PI/180)));
 
               if (started == 1) {
                 //you CAN'T do it like this!!
@@ -770,6 +722,13 @@ class levelOneScene extends Scene {
       lifeCount: this.ship_health,
     });
     this.scene.pause();
+  }
+
+  decrementHealth() {
+    this.ship_health--;
+    let heart = this.heartGroup.getLastNth(1, true);
+    heart.setActive(false);
+    heart.setVisible(false);
   }
 }
 
