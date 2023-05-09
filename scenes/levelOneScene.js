@@ -761,6 +761,16 @@ class levelOneScene extends Scene {
       this.scene.pause();
     }
   }
+
+  clearedLevel() {
+    this.scene.launch("deathMenuScene", {
+      userData: this.userData,
+      sceneKey: "levelOneScene",
+      killCount: this.kill_count,
+      lifeCount: this.ship_health,
+    });
+    this.scene.pause();
+  }
 }
 
 export default levelOneScene;
