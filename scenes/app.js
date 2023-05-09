@@ -1,15 +1,20 @@
 import Phaser from "phaser";
 import loginScene from "./loginScene";
+import levelTwoScene from "./levelTwoScene";
+
 import mainMenuScene from "./mainMenuScene";
 import levelSelectorScene from "./levelSelectorScene";
 import pauseMenuScene from "./pauseMenuScene";
 import highScoresScene from "./highScoresScene";
-import testScene2 from "./testScene2";
-import testScene1 from "./testScene1";
-import testScene3 from "./testScene3";
+
+import deathMenuScene from "./deathMenuScene";
+import levelOneScene from "./levelOneScene";
 
 const width = 1024;
 const height = 768;
+//const width = 1024;
+//const height = 1.5*768;
+
 const config = {
   type: Phaser.AUTO,
   width: width,
@@ -26,13 +31,13 @@ const config = {
   parent: "app-container",
   scene: [
     loginScene,
-    testScene1,
     mainMenuScene,
     levelSelectorScene,
     highScoresScene,
     pauseMenuScene,
-    testScene2,
-    testScene3,
+    levelOneScene,
+    levelTwoScene,
+    deathMenuScene,
   ],
 };
 
