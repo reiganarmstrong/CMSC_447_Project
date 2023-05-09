@@ -2,10 +2,12 @@ import { Scene } from "phaser";
 import LaserGroup from "./helperClasses/LaserGroup";
 import EnemyGroup from "./helperClasses/EnemyGroup";
 import EnemyLaserGroup from "./helperClasses/EnemyLaserGroup";
-class testScene2 extends Scene {
+import deathMenuScene from "./deathMenuScene";
+
+class testScene3 extends Scene {
   constructor(config) {
     super(config);
-    Phaser.Scene.call(this, { key: "testScene2" });
+    Phaser.Scene.call(this, { key: "testScene3" });
   }
 
   init(userData) {
@@ -22,163 +24,228 @@ class testScene2 extends Scene {
     this.load.image("enemy1", "assets/png/enemy1.png");
     this.load.image("enemyLaser", "assets/png/enemyLaser.png");
     this.load.image("sky", "assets/png/sky.png");
-    this.load.image("space4", "assets/png/space4.png");
-    this.load.audio("start_sound", "assets/audio/start_sound.mp3");
-    this.load.audio("level_sound", "assets/audio/level_music.mp3");
+    this.load.image("shield", "assets/png/shield.png");
+    this.load.image("shieldPowerup", "assets/png/shieldPowerup.png");
+    this.load.image("heart", "assets/png/heart.png");
   }
 
   create() {
-    //this.add.image(512, 384, "space4");
-    const colors = [0x000000, 0x220033, 0x440066, 0x660099];
-    //holds the width and the height of the game screen
-    const width = this.game.config.width;
-    const height = this.game.config.height;
-    // Create a new Graphics object and draw the gradient
-    this.add.graphics()
-      .fillGradientStyle(...colors, 1, 0.5, 0.5, 1, false)
-      .fillRect(0, 0, width, height);
-    //makes sure it covers the whole screen
-    // Define an array of colors for the stars
-    const starColors = [0xffffff, 0xffd700, 0xff69b4, 0x00ff00, 0x00ffff];
-    //Background Stars
-    for (let i = 0; i < 100; i++) {
-      //Phaser.Math.Between picks a random val between min and max
-      const x = Phaser.Math.Between(0, width);
-      const y = Phaser.Math.Between(0, height);
-      const size = Phaser.Math.Between(1, 3);
-      //picks random value from arr
-      const star = Phaser.Math.RND.pick(starColors);
-      this.add.graphics()
-        .fillStyle(star, 1)
-        .fillCircle(x, y, size);
-    }
+    this.add.image(512, 384, "sky");
     this.laserGroup = new LaserGroup(this);
 
     this.enemyGroup = new EnemyGroup(this);
     this.enemyLaserGroup = new EnemyLaserGroup(this);
-
+    this.initLives(3);
     this.laserGroup.physicsType = Phaser.Physics.ARCADE;
     this.enemyGroup.physicsType = Phaser.Physics.ARCADE;
 
-    this.keys = this.input.keyboard.addKeys("LEFT,RIGHT,UP,DOWN,SPACE,ESC,G");
+    this.keys = this.input.keyboard.addKeys("LEFT,RIGHT,UP,DOWN,SPACE,ESC");
     this.ship = this.physics.add.image(512, 700, "ship");
+    this.shieldPowerup = this.physics.add.image(
+      Math.floor(Math.random() * 990 + 34),
+      Math.floor(Math.random() * 200 + 500),
+      "shieldPowerup"
+    );
     //this.ship.setCollideWorldBounds(true);
-
     this.debugText = this.add.text(16, 16, "hello");
+
+    this.shieldUp = false;
 
     // dive bombing code:
 
-    let enemies = this.enemyGroup;
     this.time.addEvent({
-      delay: 1000, // every 10 seconds
+      delay: 3000, // every 10 seconds
       loop: true,
-      callback: () => {
-        // don't want to tell an enemy to divebomb when it is already in the middle of that
-        // first, collect all of the enemies that are not currently diving and pick randomly from that
-        let availableDivers = [];
-        enemies.getChildren().forEach((enemy) => {
-          console.log(enemy.body.velocity.x);
-          if (enemy.active && enemy.getData("diving") !== "true") {
-            availableDivers.push(enemy);
-          }
-          console.log(enemy.body.velocity.y);
-        });
-
-        // if all enemies are diving, wait for next callback
-        if (availableDivers.length == 0) {
-          console.log("all enemies diving, skipping");
-          return;
-        }
-
-        let diveBomber = Phaser.Utils.Array.GetRandom(availableDivers);
-
-        // first stop the current tween, we will then add a new one to replace it
-        let diveBomberTweens = this.tweens.getTweensOf(diveBomber);
-        diveBomberTweens.forEach((timeline) => {
-          // console.log(`type: ${timeline.constructor.name}`);
-          //recent
-          //timeline.stop();
-          //timeline.destroy();
-        });
-
-        diveBomber.setData("diving", "true");
-
-        // create a new timeline for the new tween
-        let diveBombTimeline = this.tweens.createTimeline();
-
-        var side = Number(diveBomber.x > 512)
-        var rot = Number(3.2 * Math.pow(-1, side))
-        var timepoint = 0;
-        var started = 0;
-        var start_y = diveBomber.y;
-        console.log("haha" + start_y)
-
-        diveBombTimeline.add({
-          /*onStart: () => {
-            diveBomber.setRotation(180);
-          },*/
-          targets: diveBomber,
-          duration: 6000,
-          rotation: rot,
-          // random offset calculated by a normal curve
-          //bounce: 0,
-          //x: 1,
-          //x: this.ship.x + Phaser.Math.Between(0, this.ship.width * 4) * Phaser.Math.RND.normal(),      
-          //y: this.ship.y,
-          //diveBomber.body.velocity.y: 200,
-          //yoyo: true,
-
-          onUpdate: () => {
-            //frankly idk how time works in this
-            timepoint += 30;
-            //this system log doesn't work somehow (because it's supposed to be console.log() you dingus)
-            //system.log("lol");
-            //these rotation lines just doesn't work
-            //diveBomber.setRotation(diveBomber.body.rotation + 0.0000000000001);
-            //diveBomber.body.rotation += 1
-            //diveBomber.setVelocityY((timepoint/2700) * 800 * Math.sin((diveBomber.body.rotation+90)*(Math.PI/180)));
-
-            if (started == 1) {
-              //you CAN'T do it like this!!
-              //if((start_y + 100) >= diveBomber.y >= start_y){
-              //you HAVE to do it like this
-              if ((start_y + 20) >= diveBomber.y && diveBomber.y >= start_y) {
-                diveBomber.setVelocityY(0)
-                //this is EXACTLY how you freaking do it
-                //the velocity refers to the distance you're going to move in the next update (i'm pretty sure)
-                diveBomber.y = start_y + diveBomber.body.velocity.y
-                diveBomber.setVelocityX(0)
-                diveBomber.setRotation(0)
-              }
-              else {
-                diveBomber.setVelocityY(300 * Math.sin((diveBomber.body.rotation + 90/*-180*/) * (Math.PI / 180)));
-                diveBomber.setVelocityX(Math.pow(-1, side) * 300 * Math.cos(2 * (diveBomber.body.rotation + 90/*-180*/) * (Math.PI / 180)));
-              }
-            }
-            else {
-              diveBomber.setVelocityY(300 * Math.sin((diveBomber.body.rotation + 90/*-180*/) * (Math.PI / 180)));
-              diveBomber.setVelocityX(Math.pow(-1, side) * 300 * Math.cos(2 * (diveBomber.body.rotation + 90/*-180*/) * (Math.PI / 180)));
-              if (diveBomber.y > start_y + 20) {
-                started = 1;
-              }
-            }
-          },
-
-          onComplete: () => {
-            diveBomber.setVelocityY(0);
-            diveBomber.setVelocityX(0);
-            diveBomber.setRotation(0);
-            diveBomber.setData("diving", "false");
-          },
-        });
-
-        console.log("lmao");
-        diveBombTimeline.play();
-      },
+      callback: this.timerEvent,
       callbackScope: this,
     });
 
     // add an event for each enemy to shoot between an interval
+    this.createEnemyShotInterval();
+
+    this.addCollisons();
+
+    // add tweens to individual enemy ships
+    this.createEnemyArcMovement();
+  }
+
+  update() {
+    this.checkGameOver();
+    this.physics.world.wrap(this.ship);
+
+    this.debugText.setText(
+      "fps: " +
+        this.game.loop.actualFps.toString() +
+        "\n" +
+        "y: " +
+        this.ship.y +
+        "\n" +
+        "y velocity: " +
+        this.ship.body.velocity.y.toString() +
+        "\n" +
+        "x velocity: " +
+        this.ship.body.velocity.x.toString() +
+        "\n"
+    );
+
+    if (this.ship.y >= 734 && this.ship.body.velocity.y > 0) {
+      this.ship.body.velocity.y = 0;
+    }
+    if (this.keys.UP.isDown) {
+      //this.ship.setVelocityY(this.ship.body.velocity.y - 4);
+      this.ship.setVelocityY(500 - this.ship.y);
+    }
+    if (this.keys.DOWN.isDown) {
+      /*if (this.ship.y < 734) {
+        this.ship.setVelocityY(this.ship.body.velocity.y + 4);
+      }*/
+      this.ship.setVelocityY(734 - this.ship.y);
+    }
+    if (this.keys.LEFT.isDown && !this.keys.RIGHT.isDown) {
+      if (this.ship.body.velocity.x > 400) {
+        this.ship.setTexture("ship");
+      } else {
+        this.ship.setTexture("ship_left");
+      }
+      this.ship.setVelocityX(this.ship.body.velocity.x - 10);
+    }
+    if (this.keys.RIGHT.isDown && !this.keys.LEFT.isDown) {
+      if (this.ship.body.velocity.x < -400) {
+        this.ship.setTexture("ship");
+      } else {
+        this.ship.setTexture("ship_right");
+      }
+      this.ship.setVelocityX(this.ship.body.velocity.x + 10);
+    }
+    if (!this.keys.RIGHT.isDown && !this.keys.LEFT.isDown) {
+      this.ship.setTexture("ship");
+      this.ship.setVelocityX(this.ship.body.velocity.x * 0.98);
+    }
+    if (!this.keys.UP.isDown && !this.keys.DOWN.isDown) {
+      this.ship.setVelocityY(this.ship.body.velocity.y * 0.98);
+    }
+
+    if (Phaser.Input.Keyboard.JustDown(this.keys.SPACE)) {
+      this.laserGroup.fireLaser(
+        this.ship.x + this.ship.body.velocity.x * 0.03,
+        this.ship.y - 48,
+        this.ship.body.velocity.x,
+        this.ship.body.velocity.y
+      );
+    }
+    if (this.shieldUp) {
+      this.physics.world.wrap(this.shield);
+      this.shield.body.x = this.ship.body.x - 48 / 2;
+      this.shield.body.y = this.ship.body.y - 52 / 2;
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.keys.ESC)) {
+      console.log("Esc detected, pausing game.");
+      this.scene.launch("pauseMenuScene", {
+        userData: this.userData,
+        sceneKey: "testScene3",
+      });
+      this.scene.pause();
+    }
+  }
+
+  timerEvent() {
+    // don't want to tell an enemy to divebomb when it is already in the middle of that
+    // first, collect all of the enemies that are not currently diving and pick randomly from that
+    let availableDivers = [];
+    let enemies = this.enemyGroup;
+    enemies.getChildren().forEach((enemy) => {
+      if (enemy.active && enemy.getData("diving") !== "true") {
+        availableDivers.push(enemy);
+      }
+    });
+
+    // if all enemies are diving, wait for next callback
+    if (availableDivers.length == 0) {
+      console.log("all enemies diving, skipping");
+      return;
+    }
+
+    let diveBomber = Phaser.Utils.Array.GetRandom(availableDivers);
+
+    // first stop the current tween, we will then add a new one to replace it
+    let diveBomberTweens = this.tweens.getTweensOf(diveBomber);
+    diveBomberTweens.forEach((timeline) => {
+      // console.log(`type: ${timeline.constructor.name}`);
+      timeline.stop();
+      timeline.destroy();
+    });
+
+    diveBomber.setData("diving", "true");
+
+    // create a new timeline for the new tween
+    let diveBombTimeline = this.tweens.createTimeline();
+
+    diveBombTimeline.add({
+      targets: diveBomber,
+      // add randomness to where the enemy ship dives to.
+      // the current formula dives to a point calculated by a normal distribution
+      // where the mean is half a ship length away. the ship can dive left or right of the ship by some
+      // random offset calculated by a normal curve
+      x:
+        this.ship.x +
+        Phaser.Math.Between(0, this.ship.width * 4) * Phaser.Math.RND.normal(),
+      y: this.ship.y,
+      duration: 1000,
+      yoyo: true,
+      onComplete: () => {
+        diveBomber.setData("diving", "false");
+
+        // create the new timelines to allow the ship to continue its original path
+        // NOTE: offset value is used to avoid tween being slightly out of sync with other ships
+        let defaultTimelineX = this.tweens.createTimeline();
+        defaultTimelineX.add({
+          targets: diveBomber,
+          x: "+=100",
+          duration: 500,
+          ease: "Sine.InOut",
+          yoyo: true,
+          repeat: -1,
+        });
+
+        let defaultTimelineY = this.tweens.createTimeline();
+        defaultTimelineY.add({
+          targets: diveBomber,
+          y: "+=50",
+          duration: 250,
+          ease: "Sine.InOut",
+          yoyo: true,
+          repeat: -1,
+          loop: -1,
+        });
+        defaultTimelineY.add({
+          targets: diveBomber,
+          y: "-=50",
+          duration: 250,
+          ease: "Sine.InOut",
+          yoyo: true,
+          repeat: -1,
+          loop: -1,
+        });
+
+        defaultTimelineX.play();
+        defaultTimelineY.play();
+      },
+    });
+
+    diveBombTimeline.play();
+
+    // refreshes shield powerup
+    this.shieldPowerup.setX(Math.floor(Math.random() * 990 + 34));
+    this.shieldPowerup.setY(Math.floor(Math.random() * 200 + 500));
+
+    if (!this.shieldPowerup.active) {
+      this.shieldPowerup.setActive(true);
+      this.shieldPowerup.enableBody();
+      this.shieldPowerup.setVisible(true);
+    }
+  }
+
+  createEnemyShotInterval() {
     this.enemyGroup.getChildren().forEach((enemy) => {
       this.time.addEvent({
         delay: Phaser.Math.FloatBetween(3000, 7000),
@@ -197,7 +264,99 @@ class testScene2 extends Scene {
         callbackScope: this,
       });
     });
+  }
 
+  createEnemyArcMovement() {
+    let enemyTimelinesX = [];
+    let enemyTimelinesY = [];
+    this.enemyGroup.getChildren().forEach((enemy) => {
+      let enemyTimelineX = this.tweens.createTimeline();
+      enemyTimelineX.add({
+        targets: enemy,
+        x: "+=100",
+        duration: 500,
+        ease: "Sine.InOut",
+        yoyo: true,
+        repeat: -1,
+      });
+
+      enemyTimelinesX.push(enemyTimelineX);
+
+      // the y tween is composed of two smaller tweens:
+      // moving down for half the time and moving back up for half the time
+      // this creates the semicircle effect
+      let enemyTimelineY = this.tweens.createTimeline();
+      enemyTimelineY.add({
+        targets: enemy,
+        y: "+=50",
+        duration: 250,
+        ease: "Sine.InOut",
+        yoyo: true,
+        repeat: -1,
+        loop: -1,
+      });
+      enemyTimelineY.add({
+        targets: enemy,
+        y: "-=50",
+        duration: 250,
+        ease: "Sine.InOut",
+        yoyo: true,
+        repeat: -1,
+        loop: -1,
+      });
+      enemyTimelinesY.push(enemyTimelineY);
+
+      // console.log("added tween");
+    });
+    this.playTimelines(enemyTimelinesX);
+    this.playTimelines(enemyTimelinesY);
+  }
+
+  playTimelines(timelines) {
+    timelines.forEach((timeline) => {
+      timeline.play();
+    });
+  }
+
+  laserCollision(enemy, laser) {
+    // disable the enemy and the laser that collided
+    enemy.disableBody(true, true);
+    laser.disableBody(true, true);
+  }
+
+  enemyLaserCollision(player, enemyLaser) {
+    // disable the laser that collided
+    enemyLaser.disableBody(true, true);
+    this.decrementLives();
+  }
+
+  playerEnemyBodyCollision(player, enemy) {
+    this.ship.x;
+    let enemyRangeX = [enemy.x - 15, enemy.x + 15];
+    let playerRangeX = [player.x - 15, player.x + 15];
+    let playerRangeY = [player.y - 26, player.y];
+    let enemyRangeY = [enemy.y - 32, enemy.y];
+    // sprite collision logic
+    if (
+      !(playerRangeY[1] < enemyRangeY[0] || enemyRangeY[1] < playerRangeY[0]) &&
+      !(playerRangeX[1] < enemyRangeX[0] || enemyRangeX[1] < playerRangeX[0])
+    ) {
+      this.decrementLives();
+      enemy.disableBody(true, true);
+    }
+  }
+
+  shieldLaserCollision(shield, enemyLaser) {
+    enemyLaser.disableBody(true, true);
+    this.destroyShield();
+  }
+
+  shieldEnemyCollision(shield, enemy) {
+    enemy.disableBody(true, true);
+    this.destroyShield();
+  }
+
+  addCollisons() {
     // create collision detection between enemies and player lasers
     this.physics.add.overlap(
       this.enemyGroup,
@@ -224,164 +383,79 @@ class testScene2 extends Scene {
       null,
       this
     );
-
-    // see https://rexrainbow.github.io/phaser3-rex-notes/docs/site/tween/
-    // for relative tweening
-    let enemyTimelinesX = [];
-    let enemyTimelinesY = [];
-
-    // add tweens to individual enemy ships
-    // Idle movement of enemies
-    this.enemyGroup.getChildren().forEach((enemy) => {
-      let enemyTimelineX = this.tweens.createTimeline();
-      enemyTimelineX.add({
-        targets: enemy,
-        x: "+=40",
-        duration: 2000,
-        //ease: "Sine.InOut",
-        yoyo: true,
-        repeat: -1,
-      });
-
-      enemyTimelinesX.push(enemyTimelineX);
-
-      // the y tween is composed of two smaller tweens:
-      // moving down for half the time and moving back up for half the time
-      // this creates the semicircle effect
-      /*let enemyTimelineY = this.tweens.createTimeline();
-      enemyTimelineY.add({
-        targets: enemy,
-        //y: "+=50",
-        duration: 250,
-        //ease: "Sine.InOut",
-        yoyo: true,
-        repeat: -1,
-        loop: -1,
-      });
-      enemyTimelineY.add({
-        targets: enemy,
-        //y: "-=50",
-        duration: 250,
-        //ease: "Sine.InOut",
-        yoyo: true,
-        repeat: -1,
-        loop: -1,
-      });
-      //enemyTimelinesY.push(enemyTimelineY);
-
-      // console.log("added tween");*/
-    });
-
-    enemyTimelinesX.forEach((timeline) => {
-      timeline.play();
-    });
-    enemyTimelinesY.forEach((timeline) => {
-      timeline.play();
-    });
-    const strtS = this.sound.add("start_sound");
-    const lvlS = this.sound.add("level_sound");
-    strtS.play();
-    strtS.on('complete', function () {
-      lvlS.play();
-      lvlS.setVolume(0.5);
-      lvlS.setLoop(true);
-    }.bind(this));
-  } //end of create function
-
-  laserCollision(enemy, laser) {
-    // disable the enemy and the laser that collided
-    enemy.disableBody(true, true);
-    laser.disableBody(true, true);
+    // collision detection between ship and the shield powerup
+    this.physics.add.overlap(
+      this.ship,
+      this.shieldPowerup,
+      this.shieldPowerupCollision,
+      null,
+      this
+    );
   }
 
-  enemyLaserCollision(player, enemyLaser) {
-    // disable the laser that collided
-    enemyLaser.disableBody(true, true);
+  shieldPowerupCollision(ship, shieldPowerup) {
+    if (this.shield != undefined) {
+      this.destroyShield();
+    }
+
+    shieldPowerup.disableBody(true, true);
+    this.createShield();
   }
 
-  playerEnemyBodyCollision(player, enemy) {
-    // console.log("player collided with enemy body");
-  }
-
-  update() {
-    this.physics.world.wrap(this.ship);
-
-    this.debugText.setText(
-      "fps: " +
-      this.game.loop.actualFps.toString() +
-      "\n" +
-      "y: " +
-      this.ship.y +
-      "\n" +
-      "y velocity: " +
-      this.ship.body.velocity.y.toString() +
-      "\n" +
-      "x velocity: " +
-      this.ship.body.velocity.x.toString() +
-      "\n"
+  createShield() {
+    this.shieldUp = true;
+    this.shield = this.physics.add.image(this.ship.x, this.ship.y, "shield");
+    this.shield.body.setVelocity(
+      this.ship.body.velocity.x,
+      this.ship.body.velocity.y
+    );
+    // shield and enemy laser collision
+    this.physics.add.overlap(
+      this.shield,
+      this.enemyLaserGroup,
+      this.shieldLaserCollision,
+      null,
+      this
     );
 
-    if (this.ship.y >= 734 && this.ship.body.velocity.y > 0) {
-      this.ship.body.velocity.y = 0;
-    }
-    if (this.keys.UP.isDown) {
-      //this.ship.setVelocityY(this.ship.body.velocity.y - 4);
-      this.ship.setVelocityY(450 - this.ship.y);
-      //this.ship.setVelocityY(-200*Math.sin((90 + this.ship.body.rotation)*(Math.PI/180)));
-      //this.ship.setVelocityX(-200*Math.cos((90 + this.ship.body.rotation)*(Math.PI/180)));
-    }
-    if (this.keys.DOWN.isDown) {
-      /*if (this.ship.y < 734) {
-        this.ship.setVelocityY(this.ship.body.velocity.y + 4);
-      }*/
-      this.ship.setVelocityY(834 - this.ship.y);
-    }
-    if (this.keys.LEFT.isDown && !this.keys.RIGHT.isDown) {
-      if (this.ship.body.velocity.x > 400) {
-        this.ship.setTexture("ship");
-      } else {
-        this.ship.setTexture("ship_left");
-      }
-      this.ship.setVelocityX(this.ship.body.velocity.x - 14);
-      //this.ship.body.rotation -= 2;
-    }
-    if (this.keys.RIGHT.isDown && !this.keys.LEFT.isDown) {
-      if (this.ship.body.velocity.x < -400) {
-        this.ship.setTexture("ship");
-      } else {
-        this.ship.setTexture("ship_right");
-      }
-      this.ship.setVelocityX(this.ship.body.velocity.x + 14);
-      //this.ship.body.rotation += 2;
-    }
-    if (!this.keys.RIGHT.isDown && !this.keys.LEFT.isDown) {
-      this.ship.setTexture("ship");
-      this.ship.setVelocityX(this.ship.body.velocity.x * 0.98);
-    }
-    if (!this.keys.UP.isDown && !this.keys.DOWN.isDown) {
-      this.ship.setVelocityY(this.ship.body.velocity.y * 0.98);
-    }
+    // shield and enemy collision
+    this.physics.add.overlap(
+      this.shield,
+      this.enemyGroup,
+      this.shieldEnemyCollision,
+      null,
+      this
+    );
+  }
 
-    if (Phaser.Input.Keyboard.JustDown(this.keys.SPACE)) {
-      this.laserGroup.fireLaser(
-        this.ship.x + this.ship.body.velocity.x * 0.03,
-        this.ship.y - 48,
-        this.ship.body.velocity.x,
-        this.ship.body.velocity.y
-      );
-    }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.ESC)) {
-      console.log("Esc detected, pausing game.");
-      this.scene.launch("pauseMenuScene", {
+  destroyShield() {
+    this.shieldUp = false;
+    this.shield.destroy();
+  }
+  checkGameOver() {
+    if (this.lives == 0) {
+      this.scene.launch("deathMenuScene", {
         userData: this.userData,
-        sceneKey: "testScene2",
+        sceneKey: "testScene3",
       });
       this.scene.pause();
     }
-    if (this.keys.G.isDown) {
-      this.ship.body.rotation += 2;
+  }
+  decrementLives() {
+    this.lives--;
+    let heart = this.heartGroup.getLastNth(1, true);
+    heart.setActive(false);
+    heart.setVisible(false);
+  }
+  initLives(lives) {
+    this.lives = lives;
+    this.heartGroup = new HeartGroup(this);
+    for (let i = 0; i < this.lives; i++) {
+      let hearts = this.heartGroup.getFirstDead();
+      hearts.setActive(true);
+      hearts.setVisible(true);
     }
   }
 }
 
-export default testScene2;
+export default testScene3;

@@ -138,6 +138,6 @@ input:focus {
 }
 
 .game-over {
-  color: red;
-  size: 2rem;
+  color: #d7797b;
+  font-size: 5rem;
 }
