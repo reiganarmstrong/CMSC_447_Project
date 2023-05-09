@@ -317,14 +317,14 @@ class levelOneScene extends Scene {
   }
 
   enemyLaserCollision(player, enemyLaser) {
-    if (this.time_remaining != 0) {
+    if (this.time_remaining != 0 && !this.scene.isPaused("levelOneScene")) {
       this.decrementHealth();
       enemyLaser.disableBody(true, true);
     }
   }
 
   playerEnemyBodyCollision(player, enemy) {
-    if (this.time_remaining != 0) {
+    if (this.time_remaining != 0 && !this.scene.isPaused("levelOneScene")) {
       this.decrementHealth();
 
       enemy.disableBody(true, true);
@@ -340,8 +340,6 @@ class levelOneScene extends Scene {
       this.game_start_time = this.time.now;
     }
 
-    this.time_elapsed = this.time.now - this.time_paused - this.game_start_time;
-
     if (
       this.pause_start != this.last_pause_start &&
       !this.scene.isPaused("levelOneScene")
@@ -353,6 +351,8 @@ class levelOneScene extends Scene {
       //this.pause_start = 0;
     }
 
+    this.time_elapsed = this.time.now - this.time_paused - this.game_start_time;
+
     if (this.ship_health != 0) {
       this.time_remaining = Math.max(
         0,
@@ -360,12 +360,12 @@ class levelOneScene extends Scene {
       );
     }
 
-    if (this.time_remaining != 0) {
+    if (this.time_remaining != 0 && !this.scene.isPaused("levelOneScene")) {
       this.physics.world.wrap(this.ship);
     }
-
     this.checkGameOver();
-    if (this.time_remaining < 57 && !this.scene.isPaused("levelTwoScene")) {
+
+    if (this.time_remaining < 57 && !this.scene.isPaused("levelOneScene")) {
       this.ready_graphic.visible = false;
       this.fire_graphic.visible = true;
       if (this.time_remaining < 56) {
@@ -612,7 +612,7 @@ class levelOneScene extends Scene {
       "\n"*/
     );
 
-    if (this.time_remaining == 0) {
+    if (this.time_remaining == 0 && !this.scene.isPaused("levelOneScene")) {
       this.ship.setVelocityY(this.ship.body.velocity.y - 10);
     }
 
@@ -673,7 +673,7 @@ class levelOneScene extends Scene {
       if (!this.keys.UP.isDown && !this.keys.DOWN.isDown) {
         this.ship.setVelocityY(this.ship.body.velocity.y * 0.98);
       }
-      if (this.time_remaining < 57) {
+      if (this.time_remaining < 57 && !this.scene.isPaused("levelOneScene")) {
         if (Phaser.Input.Keyboard.JustDown(this.keys.SPACE)) {
           this.sound_player_shoot.play();
           this.laserGroup.fireLaser(
