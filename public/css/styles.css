@@ -128,3 +128,16 @@ input {
   padding-bottom: 0.5rem;
   font-size: 1rem;
 }
+
+input:focus {
+  outline: none;
+}
+
+.set-invisible {
+  visibility: hidden;
+}
+
+.game-over {
+  color: red;
+  size: 2rem;
+}

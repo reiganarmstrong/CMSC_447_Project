@@ -1,5 +1,6 @@
 {
   "scripts": {
+    "build": "npm i && npm uninstall phaser && npm i phaser@3.55.2",
     "dev": "node backend/apiHelpers/resetDatabase.js && nodemon --watch frontend/js backend/server.js",
     "reset-database": "node backend/apiHelpers/resetDatabase.js"
   },
