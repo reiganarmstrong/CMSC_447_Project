@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import loginScene from "./loginScene";
-import levelOne from "./levelOne";
+import levelTwoScene from "./levelTwoScene";
 
 import mainMenuScene from "./mainMenuScene";
 import levelSelectorScene from "./levelSelectorScene";
@@ -8,7 +8,7 @@ import pauseMenuScene from "./pauseMenuScene";
 import highScoresScene from "./highScoresScene";
 
 import deathMenuScene from "./deathMenuScene";
-import levelTwo from "./levelTwo";
+import levelOneScene from "./levelOneScene";
 
 const width = 1024;
 const height = 768;
@@ -35,8 +35,8 @@ const config = {
     levelSelectorScene,
     highScoresScene,
     pauseMenuScene,
-    levelOne,
-    levelTwo,
+    levelOneScene,
+    levelTwoScene,
     deathMenuScene,
   ],
 };

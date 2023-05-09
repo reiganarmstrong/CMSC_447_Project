@@ -3,10 +3,10 @@ import LaserGroup from "./helperClasses/LaserGroup";
 import EnemyGroup from "./helperClasses/EnemyGroup";
 import EnemyLaserGroup from "./helperClasses/EnemyLaserGroup";
 
-class levelTwo extends Scene {
+class levelOneScene extends Scene {
   constructor(config) {
     super(config);
-    Phaser.Scene.call(this, { key: "levelTwo" });
+    Phaser.Scene.call(this, { key: "levelOneScene" });
   }
 
   init(userData) {
@@ -57,7 +57,7 @@ class levelTwo extends Scene {
 
     this.game_start_time = this.add.Number;
     this.game_start_time = 0;
-    //this.game_start_time = Phaser.Scenes.SceneManager.getScene("levelTwo").time.now;
+    //this.game_start_time = Phaser.Scenes.SceneManager.getScene("levelOneScene").time.now;
     //this.game_start_time = Phaser.Time.Clock.now;
 
     this.time_remaining = this.add.Number;
@@ -386,7 +386,7 @@ class levelTwo extends Scene {
 
     if (
       this.pause_start != this.last_pause_start &&
-      !this.scene.isPaused("levelTwo")
+      !this.scene.isPaused("levelOneScene")
     ) {
       console.log("this thing happened");
       this.time_paused += this.time.now - this.pause_start;
@@ -407,7 +407,7 @@ class levelTwo extends Scene {
     }
 
     this.checkGameOver();
-    if (this.time_remaining < 57) {
+    if (this.time_remaining < 57 && !this.scene.isPaused("levelTwoScene")) {
       this.ready_graphic.visible = false;
       this.fire_graphic.visible = true;
       if (this.time_remaining < 56) {
@@ -737,14 +737,14 @@ class levelTwo extends Scene {
       this.ship.setVelocityY(0);
     }
     if (Phaser.Input.Keyboard.JustDown(this.keys.ESC)) {
-      if (!this.scene.isPaused("levelTwo")) {
+      if (!this.scene.isPaused("levelOneScene")) {
         console.log("got time");
         this.pause_start = this.time.now;
       }
       console.log("Esc detected, pausing game.");
       this.scene.launch("pauseMenuScene", {
         userData: this.userData,
-        sceneKey: "levelTwo",
+        sceneKey: "levelOneScene",
       });
       this.scene.pause();
     }
@@ -756,11 +756,11 @@ class levelTwo extends Scene {
       this.level_graphic.setVisible(false);
       this.scene.launch("deathMenuScene", {
         userData: this.userData,
-        sceneKey: "levelTwo",
+        sceneKey: "levelOneScene",
       });
       this.scene.pause();
     }
   }
 }
 
-export default levelTwo;
+export default levelOneScene;

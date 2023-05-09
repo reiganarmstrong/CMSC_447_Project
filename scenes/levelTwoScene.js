@@ -3,10 +3,10 @@ import LaserGroup from "./helperClasses/LaserGroup";
 import EnemyGroup from "./helperClasses/EnemyGroup";
 import EnemyLaserGroup from "./helperClasses/EnemyLaserGroup";
 
-class levelOne extends Scene {
+class levelTwoScene extends Scene {
   constructor(config) {
     super(config);
-    Phaser.Scene.call(this, { key: "levelOne" });
+    Phaser.Scene.call(this, { key: "levelTwoScene" });
   }
 
   init(userData) {
@@ -55,7 +55,7 @@ class levelOne extends Scene {
 
     this.game_start_time = this.add.Number;
     this.game_start_time = 0;
-    //this.game_start_time = Phaser.Scenes.SceneManager.getScene("levelOne").time.now;
+    //this.game_start_time = Phaser.Scenes.SceneManager.getScene("levelTwoScene").time.now;
     //this.game_start_time = Phaser.Time.Clock.now;
 
     this.time_remaining = this.add.Number;
@@ -334,7 +334,7 @@ class levelOne extends Scene {
   }
 
   enemyLaserCollision(player, enemyLaser) {
-    if (this.time_remaining != 0 && !this.scene.isPaused("levelOne")) {
+    if (this.time_remaining != 0 && !this.scene.isPaused("levelTwoScene")) {
       // disable the laser that collided
       this.ship_health -= 1;
       if (this.ship_health == 4) {
@@ -360,7 +360,7 @@ class levelOne extends Scene {
   }
 
   playerEnemyBodyCollision(player, enemy) {
-    if (this.time_remaining != 0 && !this.scene.isPaused("levelOne")) {
+    if (this.time_remaining != 0 && !this.scene.isPaused("levelTwoScene")) {
       this.ship_health -= 1;
       if (this.ship_health == 4) {
         this.health5.visible = false;
@@ -388,7 +388,7 @@ class levelOne extends Scene {
   }
 
   update() {
-    console.log("paused: " + this.scene.isPaused("levelOne"));
+    console.log("paused: " + this.scene.isPaused("levelTwoScene"));
     //if game_start_time is 0 it means the scene has just been created. for some reason it doesn't work
     //properly if i do this in create(), since it gets all weird when you pause or return to the main menu
     if (this.game_start_time == 0) {
@@ -397,7 +397,7 @@ class levelOne extends Scene {
 
     if (
       this.pause_start != this.last_pause_start &&
-      !this.scene.isPaused("levelOne")
+      !this.scene.isPaused("levelTwoScene")
     ) {
       console.log("this thing happened");
       this.time_paused += this.time.now - this.pause_start;
@@ -415,7 +415,7 @@ class levelOne extends Scene {
       );
     }
 
-    if (this.time_remaining != 0 && !this.scene.isPaused("levelOne")) {
+    if (this.time_remaining != 0 && !this.scene.isPaused("levelTwoScene")) {
       this.physics.world.wrap(this.ship);
     }
     this.checkGameOver();
@@ -423,14 +423,14 @@ class levelOne extends Scene {
     //   this.fail_graphic.visible = true;
     // }
 
-    if (this.time_remaining < 57 && !this.scene.isPaused("levelOne")) {
+    if (this.time_remaining < 57 && !this.scene.isPaused("levelTwoScene")) {
       this.ready_graphic.visible = false;
       this.fire_graphic.visible = true;
-      if (this.time_remaining < 56 && !this.scene.isPaused("levelOne")) {
+      if (this.time_remaining < 56) {
         this.level_graphic.alpha -= 0.01;
         this.fire_graphic.alpha -= 0.01;
         //this.fire_graphic.visible = false;
-        if (this.time_remaining == 0 && !this.scene.isPaused("levelOne")) {
+        if (this.time_remaining == 0) {
           this.time_up_graphic.visible = true;
         }
       }
@@ -696,7 +696,7 @@ class levelOne extends Scene {
       "\n"*/
     );
 
-    if (this.time_remaining == 0 && !this.scene.isPaused("levelOne")) {
+    if (this.time_remaining == 0 && !this.scene.isPaused("levelTwoScene")) {
       this.ship.setVelocityY(this.ship.body.velocity.y - 10);
     }
 
@@ -760,7 +760,7 @@ class levelOne extends Scene {
       if (!this.keys.UP.isDown && !this.keys.DOWN.isDown) {
         this.ship.setVelocityY(this.ship.body.velocity.y * 0.98);
       }
-      if (this.time_remaining < 57 && !this.scene.isPaused("levelOne")) {
+      if (this.time_remaining < 57 && !this.scene.isPaused("levelTwoScene")) {
         if (Phaser.Input.Keyboard.JustDown(this.keys.SPACE)) {
           this.laserGroup.fireLaser(
             this.ship.x + this.ship.body.velocity.x * 0.03,
@@ -775,7 +775,7 @@ class levelOne extends Scene {
       this.ship.setVelocityY(0);
     }
     if (Phaser.Input.Keyboard.JustDown(this.keys.ESC)) {
-      if (!this.scene.isPaused("levelOne")) {
+      if (!this.scene.isPaused("levelTwoScene")) {
         console.log("got time");
         this.pause_start = this.time.now;
       }
@@ -783,7 +783,7 @@ class levelOne extends Scene {
       this.scene.pause();
       this.scene.launch("pauseMenuScene", {
         userData: this.userData,
-        sceneKey: "levelOne",
+        sceneKey: "levelTwoScene",
       });
     }
   }
@@ -795,11 +795,11 @@ class levelOne extends Scene {
       this.level_graphic.setVisible(false);
       this.scene.launch("deathMenuScene", {
         userData: this.userData,
-        sceneKey: "levelOne",
+        sceneKey: "levelTwoScene",
       });
-      this.scene.pause("levelOne");
+      this.scene.pause("levelTwoScene");
     }
   }
 }
 
-export default levelOne;
+export default levelTwoScene;

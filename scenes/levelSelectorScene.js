@@ -54,11 +54,11 @@ class levelSelectorScene extends Scene {
         console.log(`Level ${i + 1} Selected`);
         if (unlocked) {
           if (i == 0) {
-            this.scene.start("levelOne", this.userData);
+            this.scene.start("levelOneScene", this.userData);
           } else if (i == 1) {
-            this.scene.start("levelTwo", this.userData);
+            this.scene.start("levelTwoScene", this.userData);
           } else if (i == 2) {
-            this.scene.start("levelTwo", this.userData);
+            this.scene.start("levelTwoScene", this.userData);
           }
         }
       });
