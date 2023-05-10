@@ -250,9 +250,7 @@ class bossScene extends Scene {
         bossTimelineX.play();
         bossTimelineY.play();
 
-
-        const bigLaserTimeline = this.tweens.createTimeline();
-        bigLaserTimeline.add({
+        const bigShotConfig = {
             targets: this.boss,
             x: "512",
             y: "30",
@@ -269,8 +267,6 @@ class bossScene extends Scene {
             },
             ease: "Sine.InOut",
             onStart: () => {
-                // this.previousX = this.boss.x;
-                // this.previousY = this.boss.y;
                 bossTimelineX.pause();
                 bossTimelineY.pause();
             },
@@ -278,7 +274,8 @@ class bossScene extends Scene {
                 bossTimelineX.resume();
                 bossTimelineY.resume();
             }
-        });
+        }
+
 
         /*
         const bigLaserTimelineY = this.tweens.createTimeline();
@@ -304,6 +301,8 @@ class bossScene extends Scene {
                 // FIXME: FIX
                 // FIXME: FIX
                 // this.erroronpurpose.undefined;
+                const bigLaserTimeline = this.tweens.createTimeline();
+                bigLaserTimeline.add(bigShotConfig);
                 bigLaserTimeline.play();
             },
             // onComplete: () => { bigLaserTimeline.stop(); },
@@ -320,6 +319,7 @@ class bossScene extends Scene {
         this.sound_enemy_hit.play();
         this.boss.health--;
         if (this.boss.health == 0) {
+            this.kill_count += 1;
             boss.disableBody(true, true);
 
             // XXX: THIS IS WHERE THE LEVEL CAN END
