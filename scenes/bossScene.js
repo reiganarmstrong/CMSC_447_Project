@@ -191,7 +191,7 @@ class bossScene extends Scene {
 
 
         this.time.addEvent({
-            delay: Phaser.Math.Between(500, 1200),
+            delay: Phaser.Math.Between(500, 1000),
             loop: true,
             callback: () => {
                 const velX = Phaser.Math.Between(220, 350);
@@ -252,9 +252,9 @@ class bossScene extends Scene {
 
         const bigShotConfig = {
             targets: this.boss,
-            x: "512",
-            y: "30",
-            duration: 2000,
+            x: Phaser.Math.Between(10, 700),
+            y: Phaser.Math.Between(25, 50),
+            duration: 1100,
             yoyo: true,
             onYoyo: () => {
                 // FIXME: this callback is executed twice... not sure why
@@ -288,21 +288,16 @@ class bossScene extends Scene {
         */
 
         this.time.addEvent({
-            delay: 5000,
+            delay: Phaser.Math.Between(5000, 10000),
             repeat: -1,
             loop: true,
             callback: () => {
                 console.log("in big laser timeline callback");
-                // bigLaserTimeline.resetTweens();
-                // bigLaserTimeline.resetTweens(true);
-                // FIXME: FIX
-                // FIXME: FIX
-                // FIXME: FIX
-                // FIXME: FIX
-                // FIXME: FIX
-                // this.erroronpurpose.undefined;
                 const bigLaserTimeline = this.tweens.createTimeline();
                 bigLaserTimeline.add(bigShotConfig);
+                // update to new x/y values
+                bigShotConfig.x = Phaser.Math.Between(10, 700);
+                bigShotConfig.y = Phaser.Math.Between(25, 50);
                 bigLaserTimeline.play();
             },
             // onComplete: () => { bigLaserTimeline.stop(); },
