@@ -84,7 +84,7 @@ class levelTwoScene extends Scene {
 
     this.laserGroup = new LaserGroup(this);
 
-    this.enemyGroup = new EnemyGroup(this);
+    this.enemyGroup = new EnemyGroup(this, "enemy1", 2);
     this.enemyLaserGroup = new EnemyLaserGroup(this);
 
     this.kill_count = this.add.Number;
@@ -362,7 +362,7 @@ class levelTwoScene extends Scene {
 
       this.enemies_remaining = this.enemies_per_wave;
 
-      this.enemyGroup = new EnemyGroup(this);
+      this.enemyGroup = new EnemyGroup(this, "enemy1", 2);
       //this.enemyLaserGroup = new EnemyLaserGroup(this);
 
       //this.laserGroup.physicsType = Phaser.Physics.ARCADE;
