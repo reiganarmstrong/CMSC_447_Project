@@ -2,6 +2,7 @@ import { Scene } from "phaser";
 import LaserGroup from "./helperClasses/LaserGroup";
 import EnemyLaserGroup from "./helperClasses/EnemyLaserGroup";
 import BossLaserGroup from "./helperClasses/BossLaserGroup";
+import BossBigLaserGroup from "./helperClasses/BossBigLaserGroup";
 
 class bossScene extends Scene {
     constructor(config) {
@@ -21,6 +22,8 @@ class bossScene extends Scene {
         this.load.image("ship_right", "assets/png/ship_right.png");
         this.load.image("missile", "assets/png/missile.png");
         this.load.image("enemyLaser", "assets/png/enemyLaser.png");
+        this.load.image("bossLaser", "assets/png/bossLaser.png");
+        this.load.image("bossLaserBig", "assets/png/bossLaserBig.png");
         this.load.image("sky", "assets/png/sky.png");
         this.load.image("ready", "assets/png/READY.png");
         this.load.image("fire", "assets/png/FIRE!!.png");
@@ -124,6 +127,8 @@ class bossScene extends Scene {
 
         this.enemyLaserGroup = new EnemyLaserGroup(this);
 
+        this.bossBigLaserGroup = new BossBigLaserGroup(this);
+
         this.kill_count = this.add.Number;
         this.kill_count = 0;
 
@@ -141,6 +146,36 @@ class bossScene extends Scene {
         this.ship.body.velocity.x = 0;
         this.ship.body.velocity.y = 0;
 
+        // add the boss ship
+        this.boss = this.physics.add.image(200, 30, "boss");
+        this.bossLaserGroup = new BossLaserGroup(this);
+
+        this.physics.add.overlap(
+            this.bossLaserGroup,
+            this.ship,
+            this.bossLaserCollision,
+            null,
+            this
+        );
+
+        this.physics.add.overlap(
+            this.bossBigLaserGroup,
+            this.ship,
+            this.bossBigLaserCollision,
+            null,
+            this
+        );
+
+        this.physics.add.overlap(
+            this.laserGroup,
+            this.boss,
+            this.playerLaserBossCollision,
+            null,
+            this
+        );
+
+        // const boss = this.boss;
+
         //this.ship.setCollideWorldBounds(true);
 
         this.debugText = this.add.text(16, 16, "");
@@ -154,29 +189,152 @@ class bossScene extends Scene {
         this.start_countdown = 3;
 
 
-        this.boss = this.physics.add.image(512, 30, "boss");
-        this.bossLaserGroup = new BossLaserGroup(this);
+
         this.time.addEvent({
-            delay: 4000,
+            delay: Phaser.Math.Between(500, 1200),
             loop: true,
             callback: () => {
                 const velX = Phaser.Math.Between(220, 350);
-                const width = Phaser.Math.Between(30, 90)
-                this.bossLaserGroup.fireLaser(500, 20, velX, 250, width);
+                const width = Phaser.Math.Between(30, 90);
+                if (this.boss.health > 0) {
+                    this.bossLaserGroup.fireLaser(this.boss.x, this.boss.y, velX, 250, width);
+                }
             }
         });
+
+
+        /*
+        const bossMovementTimeline = this.tweens.timeline({
+            targets: boss,
+            ease: 'Linear',
+            tweens: [
+
+            ]
+        })
+        */
+
+
+
+        // see https://rexrainbow.github.io/phaser3-rex-notes/docs/site/tween/
+        // for relative tweening
+        let bossTimelineX = this.tweens.createTimeline();
+        bossTimelineX.add({
+            targets: this.boss,
+            x: "+=" + Phaser.Math.Between(500, 700),
+            duration: 950,
+            ease: "Sine.InOut",
+            yoyo: true,
+            repeat: -1,
+        });
+
+        let bossTimelineY = this.tweens.createTimeline();
+        bossTimelineY.add({
+            targets: this.boss,
+            y: "+=250",
+            duration: 550,
+            ease: "Sine.InOut",
+            yoyo: true,
+            repeat: -1,
+            loop: -1
+        });
+        bossTimelineY.add({
+            targets: this.boss,
+            y: "-=250",
+            duration: 550,
+            ease: "Sine.InOut",
+            yoyo: true,
+            repeat: -1,
+            loop: -1,
+        });
+
+        bossTimelineX.play();
+        bossTimelineY.play();
+
+
+        const bigLaserTimeline = this.tweens.createTimeline();
+        bigLaserTimeline.add({
+            targets: this.boss,
+            x: "512",
+            y: "30",
+            duration: 2000,
+            yoyo: true,
+            onYoyo: () => {
+                // FIXME: this callback is executed twice... not sure why
+                console.log(`YOYO'D`);
+                // const sign = Phaser.Math.Between(0, 1) == 0 ? -1 : 1;
+                // this.bossBigLaserGroup.fireLaser(this.boss.x, this.boss.y, sign * Phaser.Math.Between(70, 120), 200, 90);
+                if (this.boss.health > 0) {
+                    this.bossBigLaserGroup.fireLaser(this.boss.x, this.boss.y, 100, 200, 90);
+                }
+            },
+            ease: "Sine.InOut",
+            onStart: () => {
+                // this.previousX = this.boss.x;
+                // this.previousY = this.boss.y;
+                bossTimelineX.pause();
+                bossTimelineY.pause();
+            },
+            onComplete: () => {
+                bossTimelineX.resume();
+                bossTimelineY.resume();
+            }
+        });
+
+        /*
+        const bigLaserTimelineY = this.tweens.createTimeline();
+        bigLaserTimelineY.add({
+            targets: this.boss,
+            y: "30",
+            duration: 1000,
+            ease: "Sine.InOut",
+        });
+        */
+
+        this.time.addEvent({
+            delay: 5000,
+            repeat: -1,
+            loop: true,
+            callback: () => {
+                console.log("in big laser timeline callback");
+                // bigLaserTimeline.resetTweens();
+                // bigLaserTimeline.resetTweens(true);
+                // FIXME: FIX
+                // FIXME: FIX
+                // FIXME: FIX
+                // FIXME: FIX
+                // FIXME: FIX
+                // this.erroronpurpose.undefined;
+                bigLaserTimeline.play();
+            },
+            // onComplete: () => { bigLaserTimeline.stop(); },
+            callbackScope: this
+        });
+
+        // boss takes 7 hits
+        this.boss.health = 7;
+
     }
 
-    laserCollision(enemy, laser) {
+    playerLaserBossCollision(laser, boss) {
         // disable the enemy and the laser that collided
         this.sound_enemy_hit.play();
-        enemy.disableBody(true, true);
+        this.boss.health--;
+        if (this.boss.health == 0) {
+            boss.disableBody(true, true);
+
+            // XXX: THIS IS WHERE THE LEVEL CAN END
+            // XXX: THIS IS WHERE THE LEVEL CAN END
+            // XXX: THIS IS WHERE THE LEVEL CAN END
+            // XXX: THIS IS WHERE THE LEVEL CAN END
+            // XXX: THIS IS WHERE THE LEVEL CAN END
+
+        }
         laser.disableBody(true, true);
-        this.enemies_remaining -= 1;
-        this.kill_count += 1;
+        // this.enemies_remaining -= 1;
+        // this.kill_count += 1;
     }
 
-    enemyLaserCollision(player, enemyLaser) {
+    bossLaserCollision(player, enemyLaser) {
         if (this.time_remaining != 0 && !this.scene.isPaused("bossScene")) {
             // disable the laser that collided
             this.ship_health -= 1;
@@ -202,29 +360,31 @@ class bossScene extends Scene {
         }
     }
 
-    playerEnemyBodyCollision(player, enemy) {
+    bossBigLaserCollision(player, bigLaser) {
+        bigLaser.disableBody(true, true);
         if (this.time_remaining != 0 && !this.scene.isPaused("bossScene")) {
-            this.ship_health -= 1;
-            if (this.ship_health == 4) {
-                this.health5.visible = false;
-            }
-            if (this.ship_health == 3) {
-                this.health4.visible = false;
-            }
-            if (this.ship_health == 2) {
-                this.health3.visible = false;
-            }
-            if (this.ship_health == 1) {
-                this.health2.visible = false;
-            }
-            if (this.ship_health == 0) {
-                this.health1.visible = false;
-            }
+            // big laser takes 2 hits
+            for (let i = 0; i < 2; i++) {
+                this.ship_health -= 1;
+                if (this.ship_health == 4) {
+                    this.health5.visible = false;
+                }
+                if (this.ship_health == 3) {
+                    this.health4.visible = false;
+                }
+                if (this.ship_health == 2) {
+                    this.health3.visible = false;
+                }
+                if (this.ship_health == 1) {
+                    this.health2.visible = false;
+                }
+                if (this.ship_health == 0) {
+                    this.health1.visible = false;
+                }
 
-            enemy.disableBody(true, true);
-            this.enemies_remaining -= 1;
-            if (this.ship_health == 0) {
-                this.ship.disableBody(true, true);
+                if (this.ship_health <= 0) {
+                    this.ship.disableBody(true, true);
+                }
             }
         }
         // console.log("player collided with enemy body");
@@ -400,6 +560,9 @@ class bossScene extends Scene {
         }
 
         this.bossLaserGroup.getChildren().forEach((laser) => {
+            laser.update();
+        });
+        this.bossBigLaserGroup.getChildren().forEach((laser) => {
             laser.update();
         });
 
