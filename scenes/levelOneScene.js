@@ -283,32 +283,7 @@ class levelOneScene extends Scene {
       });
     });
 
-    // create collision detection between enemies and player lasers
-    this.physics.add.overlap(
-      this.enemyGroup,
-      this.laserGroup,
-      this.laserCollision,
-      null,
-      this
-    );
-
-    // create collision detection between player ship and enemy ships
-    this.physics.add.overlap(
-      this.ship,
-      this.enemyGroup,
-      this.playerEnemyBodyCollision,
-      null,
-      this
-    );
-
-    // create collision detection between enemy shots and player ship
-    this.physics.add.overlap(
-      this.ship,
-      this.enemyLaserGroup,
-      this.enemyLaserCollision,
-      null,
-      this
-    );
+    this.createOverlaps();
   }
 
   laserCollision(enemy, laser) {
@@ -318,23 +293,6 @@ class levelOneScene extends Scene {
     laser.disableBody(true, true);
     this.enemies_remaining -= 1;
     this.kill_count += 1;
-  }
-
-  enemyLaserCollision(player, enemyLaser) {
-    if (this.time_remaining != 0 && !this.scene.isPaused("levelOneScene")) {
-      this.decrementHealth();
-      enemyLaser.disableBody(true, true);
-    }
-  }
-
-  playerEnemyBodyCollision(player, enemy) {
-    if (this.time_remaining != 0 && !this.scene.isPaused("levelOneScene")) {
-      this.decrementHealth();
-
-      enemy.disableBody(true, true);
-      this.enemies_remaining -= 1;
-    }
-    // console.log("player collided with enemy body");
   }
 
   update() {
@@ -558,33 +516,7 @@ class levelOneScene extends Scene {
           callbackScope: this,
         });
       });
-
-      // create collision detection between enemies and player lasers
-      this.physics.add.overlap(
-        this.enemyGroup,
-        this.laserGroup,
-        this.laserCollision,
-        null,
-        this
-      );
-
-      // create collision detection between player ship and enemy ships
-      this.physics.add.overlap(
-        this.ship,
-        this.enemyGroup,
-        this.playerEnemyBodyCollision,
-        null,
-        this
-      );
-
-      // create collision detection between enemy shots and player ship
-      this.physics.add.overlap(
-        this.ship,
-        this.enemyLaserGroup,
-        this.enemyLaserCollision,
-        null,
-        this
-      );
+      this.createOverlaps();
     }
 
     this.scoreText.setText(
@@ -737,6 +669,28 @@ class levelOneScene extends Scene {
     heart.setActive(false);
     heart.setVisible(false);
   }
+
+  enemyLaserCollision(player, enemyLaser) {
+    if (this.time_remaining != 0 && !this.scene.isPaused("levelOneScene")) {
+      this.decrementHealth();
+      enemyLaser.disableBody(true, true);
+    }
+    if (this.doubleShot) {
+      this.doubleShot = false;
+    }
+  }
+
+  playerEnemyBodyCollision(player, enemy) {
+    if (this.time_remaining != 0 && !this.scene.isPaused("levelOneScene")) {
+      this.decrementHealth();
+
+      enemy.disableBody(true, true);
+      this.enemies_remaining -= 1;
+    }
+    if (this.doubleShot) {
+      this.doubleShot = false;
+    }
+  }
   shieldLaserCollision(shield, enemyLaser) {
     enemyLaser.disableBody(true, true);
     this.destroyShield();
@@ -794,13 +748,13 @@ class levelOneScene extends Scene {
     }
     this.shieldUp = false;
     this.shieldPowerup = this.physics.add.image(randX, randY, "shieldPowerup");
-    this.physics.add.overlap(
-      this.ship,
-      this.shieldPowerup,
-      this.shieldPowerupCollision,
-      null,
-      this
-    );
+    // this.physics.add.overlap(
+    //   this.ship,
+    //   this.shieldPowerup,
+    //   this.shieldPowerupCollision,
+    //   null,
+    //   this
+    // );
     this.time.addEvent({
       delay: 5000,
       callback: () => {
@@ -829,19 +783,26 @@ class levelOneScene extends Scene {
       randX = Math.floor(Math.random() * 990 + 34);
     }
     this.laserGroup2 = new LaserGroup(this);
+    // this.physics.add.overlap(
+    //   this.enemyGroup,
+    //   this.laserGroup2,
+    //   this.laserCollision,
+    //   null,
+    //   this
+    // );
     this.doubleShot = false;
     this.doubleShotPowerup = this.physics.add.image(
       randX,
       randY,
       "doubleShotPowerup"
     );
-    this.physics.add.overlap(
-      this.ship,
-      this.doubleShotPowerup,
-      this.doubleShotPowerupCollision,
-      null,
-      this
-    );
+    // this.physics.add.overlap(
+    //   this.ship,
+    //   this.doubleShotPowerup,
+    //   this.doubleShotPowerupCollision,
+    //   null,
+    //   this
+    // );
     this.time.addEvent({
       delay: 4500,
       callback: () => {
@@ -883,6 +844,73 @@ class levelOneScene extends Scene {
         this.ship.y - 48,
         this.ship.body.velocity.x,
         this.ship.body.velocity.y
+      );
+    }
+  }
+  createOverlaps() {
+    // create collision detection between enemies and player lasers
+    this.physics.add.overlap(
+      this.enemyGroup,
+      this.laserGroup,
+      this.laserCollision,
+      null,
+      this
+    );
+    // create collision detection between player ship and enemy ships
+    this.physics.add.overlap(
+      this.ship,
+      this.enemyGroup,
+      this.playerEnemyBodyCollision,
+      null,
+      this
+    );
+
+    // create collision detection between enemy shots and player ship
+    this.physics.add.overlap(
+      this.ship,
+      this.enemyLaserGroup,
+      this.enemyLaserCollision,
+      null,
+      this
+    );
+    this.physics.add.overlap(
+      this.enemyGroup,
+      this.laserGroup2,
+      this.laserCollision,
+      null,
+      this
+    );
+    this.physics.add.overlap(
+      this.ship,
+      this.doubleShotPowerup,
+      this.doubleShotPowerupCollision,
+      null,
+      this
+    );
+    this.physics.add.overlap(
+      this.ship,
+      this.shieldPowerup,
+      this.shieldPowerupCollision,
+      null,
+      this
+    );
+    // shield and enemy laser collision
+    if (this.shieldUp) {
+      this.physics.add.overlap(
+        this.shield,
+        this.enemyLaserGroup,
+        this.shieldLaserCollision,
+        null,
+        this
+      );
+
+      // shield and enemy collision
+      this.physics.add.overlap(
+        this.shield,
+        this.enemyGroup,
+        this.shieldEnemyCollision,
+        null,
+        this
       );
     }
   }
