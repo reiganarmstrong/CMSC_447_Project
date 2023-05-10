@@ -1,4 +1,4 @@
-createPlayer = `INSERT INTO players VALUES (?,?,?,?,?,?)`;
+const createPlayer = `INSERT INTO players VALUES (?,?,?,?,?,?)`;
 // name and level
 module.exports = (db, name) => {
   // initialize new player with their given name and starting unlocked level 1

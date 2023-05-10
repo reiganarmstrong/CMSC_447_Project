@@ -1,6 +1,8 @@
 const createPlayer = require("./createPlayer");
 const getPlayer = require("./getPlayer");
-
+const axios = require("axios");
+const POST_URL = "http://localhost:3000/high_scores/global";
+let numPlayers = 0;
 module.exports = async (db, name) => {
   let returnStatement = { name: "null" };
   let players = null;
@@ -14,7 +16,11 @@ module.exports = async (db, name) => {
     returnStatement = players[0];
     // if not create a new player
   } else {
+    numPlayers++;
     await createPlayer(db, name);
+    if (numPlayers == 5) {
+      await axios.post(POST_URL);
+    }
     returnStatement = (await getPlayer(db, name))[0];
   }
   return returnStatement;

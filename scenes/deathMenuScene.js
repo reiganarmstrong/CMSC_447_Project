@@ -32,7 +32,7 @@ class deathMenuScene extends Scene {
 
   restartLevel() {
     this.scene.stop(this.levelKey);
-    this.scene.start(this.levelKey);
+    this.scene.start(this.levelKey, this.userData);
   }
 }
 

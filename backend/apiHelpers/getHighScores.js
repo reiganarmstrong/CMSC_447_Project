@@ -1,5 +1,5 @@
 const { resolve } = require("path");
-const searchUser = "SELECT * FROM players ORDER BY totalHighScore ASC";
+const searchUser = "SELECT * FROM players ORDER BY totalHighScore DESC";
 
 module.exports = (db) => {
   return new Promise((resolve, reject) => {
