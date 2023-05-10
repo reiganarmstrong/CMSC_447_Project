@@ -139,5 +139,19 @@ input:focus {
 
 .game-over {
   color: #d7797b;
-  font-size: 5rem;
+  font-size: 3rem;
+}
+.score-value {
+  color: #d7797b;
+  font-size: 2rem;
+}
+
+.clear-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  justify-content: center;
+  align-items: center;
+  height: 768px;
+  width: 1024px;
 }

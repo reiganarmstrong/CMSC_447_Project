@@ -339,7 +339,6 @@ class levelOneScene extends Scene {
     if (this.game_start_time == 0) {
       this.game_start_time = this.time.now;
     }
-
     if (
       this.pause_start != this.last_pause_start &&
       !this.scene.isPaused("levelOneScene")
@@ -372,9 +371,11 @@ class levelOneScene extends Scene {
         this.level_graphic.alpha -= 0.01;
         this.fire_graphic.alpha -= 0.01;
         //this.fire_graphic.visible = false;
-        if (this.time_remaining == 0) {
-          this.time_up_graphic.visible = true;
-        }
+
+        // commented this out for simplicity's sake
+        // if (this.time_remaining == 0) {
+        //   this.time_up_graphic.visible = true;
+        // }
       }
     }
 
@@ -614,6 +615,9 @@ class levelOneScene extends Scene {
 
     if (this.time_remaining == 0 && !this.scene.isPaused("levelOneScene")) {
       this.ship.setVelocityY(this.ship.body.velocity.y - 10);
+      if (this.ship.y <= -100) {
+        this.clearedLevel();
+      }
     }
 
     if (this.ship_health != 0 && this.time_remaining != 0) {
@@ -715,13 +719,13 @@ class levelOneScene extends Scene {
   }
 
   clearedLevel() {
-    this.scene.launch("deathMenuScene", {
+    this.scene.launch("clearMenuScene", {
       userData: this.userData,
       sceneKey: "levelOneScene",
       killCount: this.kill_count,
       lifeCount: this.ship_health,
     });
-    this.scene.pause();
+    this.scene.stop();
   }
 
   decrementHealth() {

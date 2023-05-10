@@ -2,7 +2,7 @@ import { Scene } from "phaser";
 import LaserGroup from "./helperClasses/LaserGroup";
 import EnemyGroup from "./helperClasses/EnemyGroup";
 import EnemyLaserGroup from "./helperClasses/EnemyLaserGroup";
-
+import HeartGroup from "./helperClasses/HeartGroup";
 class levelTwoScene extends Scene {
   constructor(config) {
     super(config);
@@ -73,17 +73,6 @@ class levelTwoScene extends Scene {
     this.time_up_graphic.visible = false;
     this.fail_graphic = this.add.image(512, 350, "fail");
     this.fail_graphic.visible = false;
-
-    this.health1 = this.add.image(50, 730, "ship");
-    this.health1.scale = 0.7;
-    this.health2 = this.add.image(100, 730, "ship");
-    this.health2.scale = 0.7;
-    this.health3 = this.add.image(150, 730, "ship");
-    this.health3.scale = 0.7;
-    this.health4 = this.add.image(200, 730, "ship");
-    this.health4.scale = 0.7;
-    this.health5 = this.add.image(250, 730, "ship");
-    this.health5.scale = 0.7;
 
     this.laserGroup = new LaserGroup(this);
 
@@ -666,6 +655,9 @@ class levelTwoScene extends Scene {
 
     if (this.time_remaining == 0 && !this.scene.isPaused("levelTwoScene")) {
       this.ship.setVelocityY(this.ship.body.velocity.y - 10);
+      if (this.ship.y <= -100) {
+        this.clearedLevel();
+      }
     }
 
     if (
@@ -767,6 +759,16 @@ class levelTwoScene extends Scene {
       });
       this.scene.pause("levelTwoScene");
     }
+  }
+
+  clearedLevel() {
+    this.scene.launch("clearMenuScene", {
+      userData: this.userData,
+      sceneKey: "levelTwoScene",
+      killCount: this.kill_count,
+      lifeCount: this.ship_health,
+    });
+    this.scene.stop();
   }
 
   decrementHealth() {

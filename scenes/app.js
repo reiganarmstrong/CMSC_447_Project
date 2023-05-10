@@ -9,6 +9,7 @@ import highScoresScene from "./highScoresScene";
 
 import deathMenuScene from "./deathMenuScene";
 import levelOneScene from "./levelOneScene";
+import clearMenuScene from "./clearLevelScene";
 
 const width = 1024;
 const height = 768;
@@ -38,6 +39,7 @@ const config = {
     levelOneScene,
     levelTwoScene,
     deathMenuScene,
+    clearMenuScene,
   ],
 };
 
