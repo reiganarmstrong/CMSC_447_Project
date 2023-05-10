@@ -1,7 +1,7 @@
 import { Scene } from "phaser";
 import { width, height } from "./app";
 import axios from "axios";
-const LEVEL_IDS = ["levelOneScene", "levelTwoScene"];
+const LEVEL_IDS = ["levelOneScene", "levelTwoScene", "levelThreeScene"];
 const PUT_URL = "http://localhost:3000/high_scores/local";
 const GET_POST_URL = "http://localhost:3000/high_scores/global";
 class clearMenuScene extends Scene {
