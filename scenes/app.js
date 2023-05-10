@@ -1,18 +1,17 @@
 import Phaser from "phaser";
 import loginScene from "./loginScene";
+import levelOneScene from "./levelOneScene";
 import levelTwoScene from "./levelTwoScene";
-
+import levelThreeScene from "./levelThreeScene";
 import mainMenuScene from "./mainMenuScene";
 import levelSelectorScene from "./levelSelectorScene";
 import pauseMenuScene from "./pauseMenuScene";
 import highScoresScene from "./highScoresScene";
 
 import deathMenuScene from "./deathMenuScene";
-import levelOneScene from "./levelOneScene";
 import clearMenuScene from "./clearLevelScene";
 import localHighScoresScene from "./localHighScoresScene";
 import globalHighScoresScene from "./globalHighScoresScene";
-import levelThreeScene from "./levelThreeScene";
 
 const width = 1024;
 const height = 768;

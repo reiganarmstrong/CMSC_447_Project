@@ -84,7 +84,7 @@ class levelOneScene extends Scene {
 
     this.laserGroup = new LaserGroup(this);
 
-    this.enemyGroup = new EnemyGroup(this, "enemy1", 2);
+    this.enemyGroup = new EnemyGroup(this, "enemy1", 1);
     this.enemyLaserGroup = new EnemyLaserGroup(this);
 
     this.kill_count = this.add.Number;
@@ -92,7 +92,7 @@ class levelOneScene extends Scene {
 
     this.enemies_remaining = this.add.Number;
     this.enemies_per_wave = this.add.Number;
-    this.enemies_per_wave = 15;
+    this.enemies_per_wave = 9;
     this.enemies_remaining = this.enemies_per_wave;
 
     this.ship_health = 5;
@@ -176,21 +176,22 @@ class levelOneScene extends Scene {
         //this.fire_graphic.visible = false;
 
         // commented this out for simplicity's sake
-        // if (this.time_remaining == 0) {
-        //   this.time_up_graphic.visible = true;
-        // }
+        if (this.time_remaining == 0) {
+          this.time_up_graphic.visible = true;
+        }
       }
     }
 
     //this should be zero because then the enemies start to get off-cycle from one another
     //form a huge group on one side of the screen
-    if (this.enemies_remaining == 2) {
+    console.log();
+    if (this.enemies_remaining == 0) {
       //this.enemyGroup.destroy();
       //this.enemyLaserGroup.destroy();
 
       this.enemies_remaining += this.enemies_per_wave;
 
-      this.enemyGroup = new EnemyGroup(this, "enemy1", 2);
+      this.enemyGroup = new EnemyGroup(this, "enemy1", 1);
       //this.enemyLaserGroup = new EnemyLaserGroup(this);
 
       //this.laserGroup.physicsType = Phaser.Physics.ARCADE;
@@ -331,14 +332,13 @@ class levelOneScene extends Scene {
   }
 
   startEnemyShotPattern() {
-    // add an event for each enemy to shoot between an interval
     this.enemyGroup.getChildren().forEach((enemy) => {
       this.time.addEvent({
-        delay: Phaser.Math.FloatBetween(1000, 7000),
+        delay: Phaser.Math.FloatBetween(3000, 7000),
         loop: true,
         callback: () => {
           // console.log(`enemy shooting: ${enemy}`);
-          if (enemy.active && enemy.y < 400) {
+          if (enemy.active) {
             this.enemyLaserGroup.fireLaser(
               enemy.x,
               enemy.y + 48,
@@ -353,145 +353,56 @@ class levelOneScene extends Scene {
   }
 
   startEnemyMovementPattern() {
-    let enemies = this.enemyGroup;
-    this.time.addEvent({
-      delay: 500,
-      loop: true,
-      callback: () => {
-        if (this.start_countdown != 0) {
-          this.start_countdown -= 1;
-          return;
-        }
+    let enemyTimelinesX = [];
+    let enemyTimelinesY = [];
+    this.enemyGroup.getChildren().forEach((enemy) => {
+      let enemyTimelineX = this.tweens.createTimeline();
+      enemyTimelineX.add({
+        targets: enemy,
+        x: "+=100",
+        duration: 500,
+        ease: "Sine.InOut",
+        yoyo: true,
+        repeat: -1,
+      });
 
-        // don't want to tell an enemy to divebomb when it is already in the middle of that
-        // first, collect all of the enemies that are not currently diving and pick randomly from that
-        let availableDivers = [];
-        enemies.getChildren().forEach((enemy) => {
-          console.log(enemy.body.velocity.x);
-          if (enemy.active && enemy.getData("diving") !== "true") {
-            availableDivers.push(enemy);
-          }
-          console.log(enemy.body.velocity.y);
-        });
+      enemyTimelinesX.push(enemyTimelineX);
 
-        // if all enemies are diving, wait for next callback
-        if (availableDivers.length == 0) {
-          console.log("all enemies diving, skipping");
-          return;
-        }
+      // the y tween is composed of two smaller tweens:
+      // moving down for half the time and moving back up for half the time
+      // this creates the semicircle effect
+      let enemyTimelineY = this.tweens.createTimeline();
+      enemyTimelineY.add({
+        targets: enemy,
+        y: "+=50",
+        duration: 250,
+        ease: "Sine.InOut",
+        yoyo: true,
+        repeat: -1,
+        loop: -1,
+      });
+      enemyTimelineY.add({
+        targets: enemy,
+        y: "-=50",
+        duration: 250,
+        ease: "Sine.InOut",
+        yoyo: true,
+        repeat: -1,
+        loop: -1,
+      });
+      enemyTimelinesY.push(enemyTimelineY);
 
-        let diveBomber = Phaser.Utils.Array.GetRandom(availableDivers);
-
-        // first stop the current tween, we will then add a new one to replace it
-        let diveBomberTweens = this.tweens.getTweensOf(diveBomber);
-        diveBomberTweens.forEach((timeline) => {
-          // console.log(`type: ${timeline.constructor.name}`);
-          //recent
-          //timeline.stop();
-          //timeline.destroy();
-        });
-
-        diveBomber.setData("diving", "true");
-
-        // create a new timeline for the new tween
-        let diveBombTimeline = this.tweens.createTimeline();
-
-        var side = Number(diveBomber.x > 512);
-        var rot = Number(3.2 * Math.pow(-1, side));
-        var timepoint = 0;
-        var started = 0;
-        var start_y = diveBomber.y;
-        console.log("haha" + start_y);
-
-        diveBombTimeline.add({
-          /*onStart: () => {
-            diveBomber.setRotation(180);
-          },*/
-          targets: diveBomber,
-          duration: 6000,
-          rotation: rot,
-          // random offset calculated by a normal curve
-          //bounce: 0,
-          //x: 1,
-          //x: this.ship.x + Phaser.Math.Between(0, this.ship.width * 4) * Phaser.Math.RND.normal(),
-          //y: this.ship.y,
-          //diveBomber.body.velocity.y: 200,
-          //yoyo: true,
-
-          onUpdate: () => {
-            //frankly idk how time works in this
-            timepoint += 30;
-            //this system log doesn't work somehow (because it's supposed to be console.log() you dingus)
-            //system.log("lol");
-            //these rotation lines just doesn't work
-            //diveBomber.setRotation(diveBomber.body.rotation + 0.0000000000001);
-            //diveBomber.body.rotation += 1
-            //diveBomber.setVelocityY((timepoint/2700) * 800 * Math.sin((diveBomber.body.rotation+90)*(Math.PI/180)));
-
-            if (started == 1) {
-              //you CAN'T do it like this!!
-              //if((start_y + 100) >= diveBomber.y >= start_y){
-              //you HAVE to do it like this
-              if (start_y + 20 >= diveBomber.y && diveBomber.y >= start_y) {
-                diveBomber.setVelocityY(0);
-                //this is EXACTLY how you freaking do it
-                //the velocity refers to the distance you're going to move in the next update (i'm pretty sure)
-                diveBomber.y = start_y + diveBomber.body.velocity.y;
-                diveBomber.setVelocityX(0);
-                diveBomber.setRotation(0);
-              } else {
-                diveBomber.setVelocityY(
-                  200 *
-                    Math.sin(
-                      (diveBomber.body.rotation + 90) /*-180*/ * (Math.PI / 180)
-                    )
-                );
-                diveBomber.setVelocityX(
-                  Math.pow(-1, side) *
-                    300 *
-                    Math.cos(
-                      2 *
-                        (diveBomber.body.rotation + 90) /*-180*/ *
-                        (Math.PI / 180)
-                    )
-                );
-              }
-            } else {
-              diveBomber.setVelocityY(
-                200 *
-                  Math.sin(
-                    (diveBomber.body.rotation + 90) /*-180*/ * (Math.PI / 180)
-                  )
-              );
-              diveBomber.setVelocityX(
-                Math.pow(-1, side) *
-                  300 *
-                  Math.cos(
-                    2 *
-                      (diveBomber.body.rotation + 90) /*-180*/ *
-                      (Math.PI / 180)
-                  )
-              );
-              if (diveBomber.y > start_y + 20) {
-                started = 1;
-              }
-            }
-          },
-
-          onComplete: () => {
-            diveBomber.setVelocityY(0);
-            diveBomber.setVelocityX(0);
-            diveBomber.setRotation(0);
-            diveBomber.setData("diving", "false");
-          },
-        });
-
-        console.log("lmao");
-        diveBombTimeline.play();
-      },
-      callbackScope: this,
+      // console.log("added tween");
+    });
+    this.playTimelines(enemyTimelinesX);
+    this.playTimelines(enemyTimelinesY);
+  }
+  playTimelines(timelines) {
+    timelines.forEach((timeline) => {
+      timeline.play();
     });
   }
+
   checkGameOver() {
     if (this.ship_health == 0) {
       this.ready_graphic.setVisible(false);
