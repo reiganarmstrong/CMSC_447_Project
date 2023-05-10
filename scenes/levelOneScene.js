@@ -292,11 +292,7 @@ class levelOneScene extends Scene {
   update() {
     //if game_start_time is 0 it means the scene has just been created. for some reason it doesn't work
     //properly if i do this in create(), since it gets all weird when you pause or return to the main menu
-    if (this.shieldUp) {
-      this.physics.world.wrap(this.shield);
-      this.shield.body.x = this.ship.body.x - 48 / 2;
-      this.shield.body.y = this.ship.body.y - 52 / 2;
-    }
+    this.updateShieldPos();
     if (this.game_start_time == 0) {
       this.game_start_time = this.time.now;
     }
@@ -750,6 +746,13 @@ class levelOneScene extends Scene {
       null,
       this
     );
+  }
+  updateShieldPos() {
+    if (this.shieldUp) {
+      this.physics.world.wrap(this.shield);
+      this.shield.body.x = this.ship.body.x - 48 / 2;
+      this.shield.body.y = this.ship.body.y - 52 / 2;
+    }
   }
 
   destroyShield() {
