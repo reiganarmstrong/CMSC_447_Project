@@ -3,6 +3,7 @@
   padding-top: 20px;
   font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
     "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  background-color: rgb(255, 255, 255);
 }
 form {
   background-color: rgba(255, 255, 255, 0);
@@ -138,11 +139,11 @@ input:focus {
 }
 
 .game-over {
-  color: #d7797b;
+  color: #ffffff;
   font-size: 3rem;
 }
 .score-value {
-  color: #d7797b;
+  color: #ffffff;
   font-size: 2rem;
 }
 

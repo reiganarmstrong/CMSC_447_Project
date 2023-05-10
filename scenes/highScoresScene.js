@@ -20,6 +20,7 @@ class highScoresScene extends Scene {
     const level1 = menu.getChildByID("level-1");
     const level2 = menu.getChildByID("level-2");
     const level3 = menu.getChildByID("level-3");
+    const total = menu.getChildByID("total");
     const back = menu.getChildByID("back");
     const userName = menu.getChildByID("user");
     userName.innerHTML = `${this.userData.name}'s High Scores`;
@@ -27,6 +28,7 @@ class highScoresScene extends Scene {
     level1.textContent = `Level 1: ${this.userData.highScore1}`;
     level2.textContent = `Level 2: ${this.userData.highScore2}`;
     level3.textContent = `Level 3: ${this.userData.highScore3}`;
+    total.textContent = `Total Score: ${this.userData.totalHighScore}`;
     back.addEventListener("click", () => {
       this.scene.start("mainMenuScene");
     });

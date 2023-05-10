@@ -3,6 +3,7 @@ import { width, height } from "./app";
 import axios from "axios";
 const LEVEL_IDS = ["levelOneScene", "levelTwoScene"];
 const PUT_URL = "http://localhost:3000/high_scores/local";
+const GET_POST_URL = "http://localhost:3000/high_scores/global";
 class clearMenuScene extends Scene {
   constructor(config) {
     super(config);
@@ -36,7 +37,7 @@ class clearMenuScene extends Scene {
     killCount.textContent = `KILL COUNT: ${this.killCount}`;
     lifeCount.textContent = `LIVES LEFT: ${this.lifeCount}`;
     finalScore.textContent = `FINAL SCORE: ${this.score}`;
-    this.updateHighScores(finalScore).then(() => {
+    this.updateHighScores(title).then(() => {
       mainMenu.addEventListener("click", () => {
         this.scene.stop(this.levelKey);
         this.scene.start("mainMenuScene", this.userData);
@@ -47,20 +48,29 @@ class clearMenuScene extends Scene {
     });
   }
 
-  async updateHighScores(finalScoreText) {
-    const body = {
-      name: this.userData.name,
-      level: this.level,
-      score: this.score,
-    };
+  async updateHighScores(title) {
+    const initialGlobalHighScores = (await axios.get(GET_POST_URL)).data;
     try {
+      const body = {
+        name: this.userData.name,
+        level: this.level,
+        score: this.score,
+      };
       const res = await axios.put(PUT_URL, body, {
         headers: {
           "Content-Type": "application/json",
         },
       });
       this.userData = res.data[0];
-      finalScore.textContent += " (HIGH SCORE !!!)";
+      title.textContent += " (NEW HIGH SCORE!)";
+      const postGlobalHighScores = (await axios.get(GET_POST_URL)).data;
+      if (
+        JSON.stringify(initialGlobalHighScores) !=
+          JSON.stringify(postGlobalHighScores) &&
+        Object.keys(postGlobalHighScores).length >= 5
+      ) {
+        await axios.post(GET_POST_URL);
+      }
     } catch (err) {
       this.userData = err.response.data;
     }
