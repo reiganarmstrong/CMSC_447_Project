@@ -35,6 +35,7 @@ class levelOneScene extends Scene {
     this.load.image("shieldPowerup", "assets/png/shieldPowerup.png");
     this.load.image("doubleShotPowerup", "assets/png/doubleShotPowerup.png");
     this.load.image("bouncePowerup", "assets/png/bouncePowerup.png");
+    this.load.image("piercePowerup", "assets/png/piercePowerup.png");
   }
 
   create() {
@@ -125,9 +126,8 @@ class levelOneScene extends Scene {
     this.start_countdown = this.add.Number;
     this.start_countdown = 3;
 
-    this.createShieldPowerup();
-    this.createDoubleShotPowerup();
-    this.createBounceShotPowerup();
+    this.createPowerups();
+
     this.time.addEvent({
       delay: 500,
       loop: true,
@@ -287,15 +287,6 @@ class levelOneScene extends Scene {
     });
 
     this.createOverlaps();
-  }
-
-  laserCollision(enemy, laser) {
-    // disable the enemy and the laser that collided
-    this.sound_enemy_hit.play();
-    enemy.disableBody(true, true);
-    laser.disableBody(true, true);
-    this.enemies_remaining -= 1;
-    this.kill_count += 1;
   }
 
   update() {
@@ -673,6 +664,16 @@ class levelOneScene extends Scene {
     heart.setVisible(false);
   }
 
+  laserCollision(enemy, laser) {
+    // disable the enemy and the laser that collided
+    this.sound_enemy_hit.play();
+    enemy.disableBody(true, true);
+    if (this.pierceShots == false) {
+      laser.disableBody(true, true);
+    }
+    this.enemies_remaining -= 1;
+    this.kill_count += 1;
+  }
   enemyLaserCollision(player, enemyLaser) {
     if (this.time_remaining != 0 && !this.scene.isPaused("levelOneScene")) {
       this.decrementHealth();
@@ -681,10 +682,11 @@ class levelOneScene extends Scene {
     if (this.doubleShot) {
       this.doubleShot = false;
     }
-    console.log("asdasdas");
-    console.log(this.bounceShots);
     if (this.bounceShots) {
       this.stopBouncing();
+    }
+    if (this.pierceShots) {
+      this.pierceShots = false;
     }
   }
 
@@ -700,6 +702,9 @@ class levelOneScene extends Scene {
     }
     if (this.bouceShots) {
       this.stopBouncing();
+    }
+    if (this.pierceShots) {
+      this.pierceShots = false;
     }
   }
   shieldLaserCollision(shield, enemyLaser) {
@@ -892,6 +897,52 @@ class levelOneScene extends Scene {
       });
     }
   }
+  pierceShotPowerupCollision(ship, pierceShotPowerup) {
+    this.pierceShots = true;
+    pierceShotPowerup.disableBody(true, true);
+  }
+  createPierceShotPowerup() {
+    const randX = Math.floor(Math.random() * 990 + 34);
+    const randY = Math.floor(Math.random() * 200 + 500);
+    while (randX > 1024 / 2 + 40 && randX < 1024 / 2 - 40) {
+      randX = Math.floor(Math.random() * 990 + 34);
+    }
+
+    this.pierceShots = false;
+    this.pierceShotPowerup = this.physics.add.image(
+      randX,
+      randY,
+      "piercePowerup"
+    );
+    // this.physics.add.overlap(
+    //   this.ship,
+    //   this.pierceShotPowerup,
+    //   this.pierceShotPowerupCollision,
+    //   null,
+    //   this
+    // );
+    this.time.addEvent({
+      delay: 4800,
+      callback: () => {
+        // refreshes shield powerup
+        this.pierceShotPowerup.setX(Math.floor(Math.random() * 990 + 34));
+        this.pierceShotPowerup.setY(Math.floor(Math.random() * 200 + 500));
+
+        if (!this.pierceShotPowerup.active) {
+          this.pierceShotPowerup.setActive(true);
+          this.pierceShotPowerup.enableBody();
+          this.pierceShotPowerup.setVisible(true);
+        }
+      },
+      loop: true,
+    });
+  }
+  createPowerups() {
+    this.createShieldPowerup();
+    this.createDoubleShotPowerup();
+    this.createBounceShotPowerup();
+    this.createPierceShotPowerup();
+  }
   shoot() {
     this.sound_player_shoot.play();
     const doubleShotOffset = 20;
@@ -971,6 +1022,13 @@ class levelOneScene extends Scene {
       this.ship,
       this.bounceShotPowerup,
       this.bounceShotPowerupCollision,
+      null,
+      this
+    );
+    this.physics.add.overlap(
+      this.ship,
+      this.pierceShotPowerup,
+      this.pierceShotPowerupCollision,
       null,
       this
     );
