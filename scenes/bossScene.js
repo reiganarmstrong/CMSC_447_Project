@@ -322,6 +322,7 @@ class bossScene extends Scene {
             // XXX: THIS IS WHERE THE LEVEL CAN END
             // XXX: THIS IS WHERE THE LEVEL CAN END
             // XXX: THIS IS WHERE THE LEVEL CAN END
+            this.clearedLevel();
 
         }
         laser.disableBody(true, true);
