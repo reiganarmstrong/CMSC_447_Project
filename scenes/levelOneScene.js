@@ -84,7 +84,7 @@ class levelOneScene extends Scene {
 
     this.laserGroup = new LaserGroup(this);
 
-    this.enemyGroup = new EnemyGroup(this);
+    this.enemyGroup = new EnemyGroup(this, "enemy1", 2);
     this.enemyLaserGroup = new EnemyLaserGroup(this);
 
     this.kill_count = this.add.Number;
@@ -128,6 +128,232 @@ class levelOneScene extends Scene {
 
     this.createPowerups();
 
+    this.startEnemyMovementPattern();
+
+    this.startEnemyShotPattern();
+
+    this.createOverlaps();
+  }
+
+  update() {
+    //if game_start_time is 0 it means the scene has just been created. for some reason it doesn't work
+    //properly if i do this in create(), since it gets all weird when you pause or return to the main menu
+    this.updateShieldPos();
+    if (this.game_start_time == 0) {
+      this.game_start_time = this.time.now;
+    }
+    if (
+      this.pause_start != this.last_pause_start &&
+      !this.scene.isPaused("levelOneScene")
+    ) {
+      console.log("this thing happened");
+      this.time_paused += this.time.now - this.pause_start;
+      this.last_pause_start = this.pause_start;
+      //this.time_remaining += this.time.now - this.pause_start;
+      //this.pause_start = 0;
+    }
+
+    this.time_elapsed = this.time.now - this.time_paused - this.game_start_time;
+
+    if (this.ship_health != 0) {
+      this.time_remaining = Math.max(
+        0,
+        Number(60 - this.time_elapsed / 1000).toFixed(2)
+      );
+    }
+
+    if (this.time_remaining != 0 && !this.scene.isPaused("levelOneScene")) {
+      this.physics.world.wrap(this.ship);
+    }
+    this.checkGameOver();
+
+    if (this.time_remaining < 57 && !this.scene.isPaused("levelOneScene")) {
+      this.ready_graphic.visible = false;
+      this.fire_graphic.visible = true;
+      if (this.time_remaining < 56) {
+        this.level_graphic.alpha -= 0.01;
+        this.fire_graphic.alpha -= 0.01;
+        //this.fire_graphic.visible = false;
+
+        // commented this out for simplicity's sake
+        // if (this.time_remaining == 0) {
+        //   this.time_up_graphic.visible = true;
+        // }
+      }
+    }
+
+    //this should be zero because then the enemies start to get off-cycle from one another
+    //form a huge group on one side of the screen
+    if (this.enemies_remaining == 2) {
+      //this.enemyGroup.destroy();
+      //this.enemyLaserGroup.destroy();
+
+      this.enemies_remaining += this.enemies_per_wave;
+
+      this.enemyGroup = new EnemyGroup(this, "enemy1", 2);
+      //this.enemyLaserGroup = new EnemyLaserGroup(this);
+
+      //this.laserGroup.physicsType = Phaser.Physics.ARCADE;
+      this.enemyGroup.physicsType = Phaser.Physics.ARCADE;
+
+      //this.keys = this.input.keyboard.addKeys("LEFT,RIGHT,UP,DOWN,SPACE,ESC,G");
+      //this.ship = this.physics.add.image(512, 700, "ship");
+      //this.ship.setCollideWorldBounds(true);
+
+      //this.debugText = this.add.text(16, 16, "hello");
+
+      // dive bombing code:
+      this.startEnemyMovementPattern();
+      this.startEnemyShotPattern();
+      this.createOverlaps();
+    }
+
+    this.scoreText.setText(
+      "kill count: " +
+        this.kill_count +
+        "\n" +
+        "time: " +
+        this.time_remaining +
+        "\n"
+    );
+    /*"health: " + this.ship_health + "\n" +
+    "time paused: " + this.time_paused + "\n" +
+    "start time: " + this.game_start_time + "\n" +
+    "this.time.now: " + this.time.now + "\n" + 
+    "this.time_elapsed: " + this.time_elapsed/1000);*/
+
+    this.debugText.setText(
+      "fps: " + Number(this.game.loop.actualFps).toFixed(1).toString() /*+
+      "\n" +
+      "y: " +
+      this.ship.y +
+      "\n" +
+      "x: " +
+      this.ship.x +
+      "\n" +
+      "y velocity: " +
+      this.ship.body.velocity.y.toString() +
+      "\n" +
+      "x velocity: " +
+      this.ship.body.velocity.x.toString() + 
+      "\n" +
+
+      "rotation: " +
+      this.ship.body.rotation.toString() + 
+      "\n"*/
+    );
+
+    if (this.time_remaining == 0 && !this.scene.isPaused("levelOneScene")) {
+      this.ship.setVelocityY(this.ship.body.velocity.y - 10);
+      if (this.ship.y <= -100) {
+        this.clearedLevel();
+      }
+    }
+
+    if (this.ship_health != 0 && this.time_remaining != 0) {
+      if (this.ship.y >= 734 && this.ship.body.velocity.y > 0) {
+        this.ship.body.velocity.y = 0;
+      }
+      if (this.keys.UP.isDown) {
+        //this.ship.setVelocityY(this.ship.body.velocity.y - 4);
+        this.ship.setVelocityY(400 - this.ship.y);
+        //this.ship.setVelocityY(-200*Math.sin((90 + this.ship.body.rotation)*(Math.PI/180)));
+        //this.ship.setVelocityX(-200*Math.cos((90 + this.ship.body.rotation)*(Math.PI/180)));
+      }
+      if (this.keys.DOWN.isDown) {
+        /*if (this.ship.y < 734) {
+          this.ship.setVelocityY(this.ship.body.velocity.y + 4);
+        }*/
+        this.ship.setVelocityY(2 * (734 - this.ship.y));
+      }
+      if (this.keys.LEFT.isDown && !this.keys.RIGHT.isDown) {
+        if (this.ship.body.velocity.x > 400) {
+          this.ship.setTexture("ship");
+        } else {
+          this.ship.setTexture("ship_left");
+        }
+        if (this.ship.body.velocity.x >= -700 /*-200*/) {
+          //this.ship.setVelocityX(this.ship.body.velocity.x - 20);
+          this.ship.setVelocityX(
+            this.ship.body.velocity.x +
+              0.025 * (-700 - this.ship.body.velocity.x)
+          );
+          //this.ship.setVelocityX(this.ship.body.velocity.x + .05 * (-700 - this.ship.body.velocity.x));
+
+          //this.ship.setVelocityX(-200);
+        }
+      }
+      if (this.keys.RIGHT.isDown && !this.keys.LEFT.isDown) {
+        if (this.ship.body.velocity.x < -400) {
+          this.ship.setTexture("ship");
+        } else {
+          this.ship.setTexture("ship_right");
+        }
+        if (this.ship.body.velocity.x <= 700 /*200*/) {
+          //this.ship.setVelocityX(this.ship.body.velocity.x + 20);
+          this.ship.setVelocityX(
+            this.ship.body.velocity.x +
+              0.025 * (700 - this.ship.body.velocity.x)
+          );
+          //this.ship.setVelocityX(this.ship.body.velocity.x + .05 * (700 - this.ship.body.velocity.x));
+
+          //this.ship.setVelocityX(200);
+        }
+      }
+      if (!this.keys.RIGHT.isDown && !this.keys.LEFT.isDown) {
+        this.ship.setTexture("ship");
+        this.ship.setVelocityX(this.ship.body.velocity.x * 0.98);
+      }
+      if (!this.keys.UP.isDown && !this.keys.DOWN.isDown) {
+        this.ship.setVelocityY(this.ship.body.velocity.y * 0.98);
+      }
+      if (this.time_remaining < 57 && !this.scene.isPaused("levelOneScene")) {
+        if (Phaser.Input.Keyboard.JustDown(this.keys.SPACE)) {
+          this.shoot();
+        }
+      }
+    } else if (this.time_remaining != 0) {
+      this.ship.setVelocityX(0);
+      this.ship.setVelocityY(0);
+    }
+    if (Phaser.Input.Keyboard.JustDown(this.keys.ESC)) {
+      if (!this.scene.isPaused("levelOneScene")) {
+        console.log("got time");
+        this.pause_start = this.time.now;
+      }
+      console.log("Esc detected, pausing game.");
+      this.scene.launch("pauseMenuScene", {
+        userData: this.userData,
+        sceneKey: "levelOneScene",
+      });
+      this.scene.pause();
+    }
+  }
+
+  startEnemyShotPattern() {
+    // add an event for each enemy to shoot between an interval
+    this.enemyGroup.getChildren().forEach((enemy) => {
+      this.time.addEvent({
+        delay: Phaser.Math.FloatBetween(1000, 7000),
+        loop: true,
+        callback: () => {
+          // console.log(`enemy shooting: ${enemy}`);
+          if (enemy.active && enemy.y < 400) {
+            this.enemyLaserGroup.fireLaser(
+              enemy.x,
+              enemy.y + 48,
+              enemy.body.velocity.x,
+              300
+            );
+          }
+        },
+        callbackScope: this,
+      });
+    });
+  }
+
+  startEnemyMovementPattern() {
+    let enemies = this.enemyGroup;
     this.time.addEvent({
       delay: 500,
       loop: true,
@@ -265,370 +491,6 @@ class levelOneScene extends Scene {
       },
       callbackScope: this,
     });
-
-    // add an event for each enemy to shoot between an interval
-    this.enemyGroup.getChildren().forEach((enemy) => {
-      this.time.addEvent({
-        delay: Phaser.Math.FloatBetween(1000, 7000),
-        loop: true,
-        callback: () => {
-          // console.log(`enemy shooting: ${enemy}`);
-          if (enemy.active && enemy.y < 400) {
-            this.enemyLaserGroup.fireLaser(
-              enemy.x,
-              enemy.y + 48,
-              enemy.body.velocity.x,
-              300
-            );
-          }
-        },
-        callbackScope: this,
-      });
-    });
-
-    this.createOverlaps();
-  }
-
-  update() {
-    //if game_start_time is 0 it means the scene has just been created. for some reason it doesn't work
-    //properly if i do this in create(), since it gets all weird when you pause or return to the main menu
-    this.updateShieldPos();
-    if (this.game_start_time == 0) {
-      this.game_start_time = this.time.now;
-    }
-    if (
-      this.pause_start != this.last_pause_start &&
-      !this.scene.isPaused("levelOneScene")
-    ) {
-      console.log("this thing happened");
-      this.time_paused += this.time.now - this.pause_start;
-      this.last_pause_start = this.pause_start;
-      //this.time_remaining += this.time.now - this.pause_start;
-      //this.pause_start = 0;
-    }
-
-    this.time_elapsed = this.time.now - this.time_paused - this.game_start_time;
-
-    if (this.ship_health != 0) {
-      this.time_remaining = Math.max(
-        0,
-        Number(60 - this.time_elapsed / 1000).toFixed(2)
-      );
-    }
-
-    if (this.time_remaining != 0 && !this.scene.isPaused("levelOneScene")) {
-      this.physics.world.wrap(this.ship);
-    }
-    this.checkGameOver();
-
-    if (this.time_remaining < 57 && !this.scene.isPaused("levelOneScene")) {
-      this.ready_graphic.visible = false;
-      this.fire_graphic.visible = true;
-      if (this.time_remaining < 56) {
-        this.level_graphic.alpha -= 0.01;
-        this.fire_graphic.alpha -= 0.01;
-        //this.fire_graphic.visible = false;
-
-        // commented this out for simplicity's sake
-        // if (this.time_remaining == 0) {
-        //   this.time_up_graphic.visible = true;
-        // }
-      }
-    }
-
-    //this should be zero because then the enemies start to get off-cycle from one another
-    //form a huge group on one side of the screen
-    if (this.enemies_remaining == 2) {
-      //this.enemyGroup.destroy();
-      //this.enemyLaserGroup.destroy();
-
-      this.enemies_remaining += this.enemies_per_wave;
-
-      this.enemyGroup = new EnemyGroup(this);
-      //this.enemyLaserGroup = new EnemyLaserGroup(this);
-
-      //this.laserGroup.physicsType = Phaser.Physics.ARCADE;
-      this.enemyGroup.physicsType = Phaser.Physics.ARCADE;
-
-      //this.keys = this.input.keyboard.addKeys("LEFT,RIGHT,UP,DOWN,SPACE,ESC,G");
-      //this.ship = this.physics.add.image(512, 700, "ship");
-      //this.ship.setCollideWorldBounds(true);
-
-      //this.debugText = this.add.text(16, 16, "hello");
-
-      // dive bombing code:
-
-      let enemies = this.enemyGroup;
-      this.time.addEvent({
-        delay: 500, // every 10 seconds
-        loop: true,
-        callback: () => {
-          // don't want to tell an enemy to divebomb when it is already in the middle of that
-          // first, collect all of the enemies that are not currently diving and pick randomly from that
-          let availableDivers = [];
-          enemies.getChildren().forEach((enemy) => {
-            console.log(enemy.body.velocity.x);
-            if (enemy.active && enemy.getData("diving") !== "true") {
-              availableDivers.push(enemy);
-            }
-            console.log(enemy.body.velocity.y);
-          });
-
-          // if all enemies are diving, wait for next callback
-          if (availableDivers.length == 0) {
-            console.log("all enemies diving, skipping");
-            return;
-          }
-
-          let diveBomber = Phaser.Utils.Array.GetRandom(availableDivers);
-
-          // first stop the current tween, we will then add a new one to replace it
-          let diveBomberTweens = this.tweens.getTweensOf(diveBomber);
-          diveBomberTweens.forEach((timeline) => {
-            // console.log(`type: ${timeline.constructor.name}`);
-            //recent
-            //timeline.stop();
-            //timeline.destroy();
-          });
-
-          diveBomber.setData("diving", "true");
-
-          // create a new timeline for the new tween
-          let diveBombTimeline = this.tweens.createTimeline();
-
-          var side = Number(diveBomber.x > 512);
-          var rot = Number(3.2 * Math.pow(-1, side));
-          var timepoint = 0;
-          var started = 0;
-          var start_y = diveBomber.y;
-          console.log("haha" + start_y);
-
-          diveBombTimeline.add({
-            /*onStart: () => {
-              diveBomber.setRotation(180);
-            },*/
-            targets: diveBomber,
-            duration: 6000,
-            rotation: rot,
-            // random offset calculated by a normal curve
-            //bounce: 0,
-            //x: 1,
-            //x: this.ship.x + Phaser.Math.Between(0, this.ship.width * 4) * Phaser.Math.RND.normal(),
-            //y: this.ship.y,
-            //diveBomber.body.velocity.y: 200,
-            //yoyo: true,
-
-            onUpdate: () => {
-              //frankly idk how time works in this
-              timepoint += 30;
-
-              if (started == 1) {
-                //you CAN'T do it like this!!
-                //if((start_y + 100) >= diveBomber.y >= start_y){
-                //you HAVE to do it like this
-                if (start_y + 20 >= diveBomber.y && diveBomber.y >= start_y) {
-                  diveBomber.setVelocityY(0);
-                  //this is EXACTLY how you freaking do it
-                  //the velocity refers to the distance you're going to move in the next update (i'm pretty sure)
-                  diveBomber.y = start_y + diveBomber.body.velocity.y;
-                  diveBomber.setVelocityX(0);
-                  diveBomber.setRotation(0);
-                } else {
-                  diveBomber.setVelocityY(
-                    200 *
-                      Math.sin(
-                        (diveBomber.body.rotation + 90) /*-180*/ *
-                          (Math.PI / 180)
-                      )
-                  );
-                  diveBomber.setVelocityX(
-                    Math.pow(-1, side) *
-                      300 *
-                      Math.cos(
-                        2 *
-                          (diveBomber.body.rotation + 90) /*-180*/ *
-                          (Math.PI / 180)
-                      )
-                  );
-                }
-              } else {
-                diveBomber.setVelocityY(
-                  200 *
-                    Math.sin(
-                      (diveBomber.body.rotation + 90) /*-180*/ * (Math.PI / 180)
-                    )
-                );
-                diveBomber.setVelocityX(
-                  Math.pow(-1, side) *
-                    300 *
-                    Math.cos(
-                      2 *
-                        (diveBomber.body.rotation + 90) /*-180*/ *
-                        (Math.PI / 180)
-                    )
-                );
-                if (diveBomber.y > start_y + 20) {
-                  started = 1;
-                }
-              }
-            },
-
-            onComplete: () => {
-              diveBomber.setVelocityY(0);
-              diveBomber.setVelocityX(0);
-              diveBomber.setRotation(0);
-              diveBomber.setData("diving", "false");
-            },
-          });
-
-          console.log("lmao");
-          diveBombTimeline.play();
-        },
-        callbackScope: this,
-      });
-
-      // add an event for each enemy to shoot between an interval
-      this.enemyGroup.getChildren().forEach((enemy) => {
-        this.time.addEvent({
-          delay: Phaser.Math.FloatBetween(1000, 2000),
-          loop: true,
-          callback: () => {
-            // console.log(`enemy shooting: ${enemy}`);
-            if (enemy.active && enemy.y < 400) {
-              this.enemyLaserGroup.fireLaser(
-                enemy.x,
-                enemy.y + 48,
-                enemy.body.velocity.x,
-                300
-              );
-            }
-          },
-          callbackScope: this,
-        });
-      });
-      this.createOverlaps();
-    }
-
-    this.scoreText.setText(
-      "kill count: " +
-        this.kill_count +
-        "\n" +
-        "time: " +
-        this.time_remaining +
-        "\n"
-    );
-    /*"health: " + this.ship_health + "\n" +
-    "time paused: " + this.time_paused + "\n" +
-    "start time: " + this.game_start_time + "\n" +
-    "this.time.now: " + this.time.now + "\n" + 
-    "this.time_elapsed: " + this.time_elapsed/1000);*/
-
-    this.debugText.setText(
-      "fps: " + Number(this.game.loop.actualFps).toFixed(1).toString() /*+
-      "\n" +
-      "y: " +
-      this.ship.y +
-      "\n" +
-      "x: " +
-      this.ship.x +
-      "\n" +
-      "y velocity: " +
-      this.ship.body.velocity.y.toString() +
-      "\n" +
-      "x velocity: " +
-      this.ship.body.velocity.x.toString() + 
-      "\n" +
-
-      "rotation: " +
-      this.ship.body.rotation.toString() + 
-      "\n"*/
-    );
-
-    if (this.time_remaining == 0 && !this.scene.isPaused("levelOneScene")) {
-      this.ship.setVelocityY(this.ship.body.velocity.y - 10);
-      if (this.ship.y <= -100) {
-        this.clearedLevel();
-      }
-    }
-
-    if (this.ship_health != 0 && this.time_remaining != 0) {
-      if (this.ship.y >= 734 && this.ship.body.velocity.y > 0) {
-        this.ship.body.velocity.y = 0;
-      }
-      if (this.keys.UP.isDown) {
-        //this.ship.setVelocityY(this.ship.body.velocity.y - 4);
-        this.ship.setVelocityY(400 - this.ship.y);
-        //this.ship.setVelocityY(-200*Math.sin((90 + this.ship.body.rotation)*(Math.PI/180)));
-        //this.ship.setVelocityX(-200*Math.cos((90 + this.ship.body.rotation)*(Math.PI/180)));
-      }
-      if (this.keys.DOWN.isDown) {
-        /*if (this.ship.y < 734) {
-          this.ship.setVelocityY(this.ship.body.velocity.y + 4);
-        }*/
-        this.ship.setVelocityY(2 * (734 - this.ship.y));
-      }
-      if (this.keys.LEFT.isDown && !this.keys.RIGHT.isDown) {
-        if (this.ship.body.velocity.x > 400) {
-          this.ship.setTexture("ship");
-        } else {
-          this.ship.setTexture("ship_left");
-        }
-        if (this.ship.body.velocity.x >= -700 /*-200*/) {
-          //this.ship.setVelocityX(this.ship.body.velocity.x - 20);
-          this.ship.setVelocityX(
-            this.ship.body.velocity.x +
-              0.025 * (-700 - this.ship.body.velocity.x)
-          );
-          //this.ship.setVelocityX(this.ship.body.velocity.x + .05 * (-700 - this.ship.body.velocity.x));
-
-          //this.ship.setVelocityX(-200);
-        }
-      }
-      if (this.keys.RIGHT.isDown && !this.keys.LEFT.isDown) {
-        if (this.ship.body.velocity.x < -400) {
-          this.ship.setTexture("ship");
-        } else {
-          this.ship.setTexture("ship_right");
-        }
-        if (this.ship.body.velocity.x <= 700 /*200*/) {
-          //this.ship.setVelocityX(this.ship.body.velocity.x + 20);
-          this.ship.setVelocityX(
-            this.ship.body.velocity.x +
-              0.025 * (700 - this.ship.body.velocity.x)
-          );
-          //this.ship.setVelocityX(this.ship.body.velocity.x + .05 * (700 - this.ship.body.velocity.x));
-
-          //this.ship.setVelocityX(200);
-        }
-      }
-      if (!this.keys.RIGHT.isDown && !this.keys.LEFT.isDown) {
-        this.ship.setTexture("ship");
-        this.ship.setVelocityX(this.ship.body.velocity.x * 0.98);
-      }
-      if (!this.keys.UP.isDown && !this.keys.DOWN.isDown) {
-        this.ship.setVelocityY(this.ship.body.velocity.y * 0.98);
-      }
-      if (this.time_remaining < 57 && !this.scene.isPaused("levelOneScene")) {
-        if (Phaser.Input.Keyboard.JustDown(this.keys.SPACE)) {
-          this.shoot();
-        }
-      }
-    } else if (this.time_remaining != 0) {
-      this.ship.setVelocityX(0);
-      this.ship.setVelocityY(0);
-    }
-    if (Phaser.Input.Keyboard.JustDown(this.keys.ESC)) {
-      if (!this.scene.isPaused("levelOneScene")) {
-        console.log("got time");
-        this.pause_start = this.time.now;
-      }
-      console.log("Esc detected, pausing game.");
-      this.scene.launch("pauseMenuScene", {
-        userData: this.userData,
-        sceneKey: "levelOneScene",
-      });
-      this.scene.pause();
-    }
   }
   checkGameOver() {
     if (this.ship_health == 0) {

@@ -58,7 +58,7 @@ class levelSelectorScene extends Scene {
           } else if (i == 1) {
             this.scene.start("levelTwoScene", this.userData);
           } else if (i == 2) {
-            this.scene.start("levelTwoScene", this.userData);
+            this.scene.start("levelThreeScene", this.userData);
           }
         }
       });
