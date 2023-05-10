@@ -17,18 +17,18 @@ class Laser extends Phaser.Physics.Arcade.Sprite {
     this.enableBody(true, x, y, true, true);
     this.setActive(true);
     this.setVisible(true);
-    this.setCollideWorldBounds(true);
-    this.setBounce(true);
 
     //if the ship doesn't have upwards speed greater
     //than the minimum bullet speed
     if (yVel >= -700) {
       this.setVelocity(xVel, -700);
-    }
-    else {
+    } else {
       this.setVelocity(xVel, yVel - 100);
     }
   }
-
+  makeBounce() {
+    this.setBounce(true);
+    this.setCollideWorldBounds(true);
+  }
 }
 export default Laser;

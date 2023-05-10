@@ -27,7 +27,7 @@ class levelTwoScene extends Scene {
     this.load.image("fire", "assets/png/FIRE!!.png");
     this.load.image("time_up", "assets/png/TIME_UP.png");
     this.load.image("fail", "assets/png/MISSION_FAILED.png");
-    this.load.image("level", "assets/png/LEVEL1.png");
+    this.load.image("level2", "assets/png/LEVEL2.png");
   }
 
   create() {
@@ -64,8 +64,8 @@ class levelTwoScene extends Scene {
     this.add.image(512, 768, "sky");
 
     this.ready_graphic = this.add.image(512, 350, "ready");
-    this.level_graphic = this.add.image(512, 250, "level");
-    this.small_level_graphic = this.add.image(950, 30, "level");
+    this.level_graphic = this.add.image(512, 250, "level2");
+    this.small_level_graphic = this.add.image(950, 30, "level2");
     this.small_level_graphic.scale = 0.5;
     this.fire_graphic = this.add.image(512, 350, "fire");
     this.fire_graphic.visible = false;

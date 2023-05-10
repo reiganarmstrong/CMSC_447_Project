@@ -30,6 +30,9 @@ class levelOneScene extends Scene {
     this.load.image("level", "assets/png/LEVEL1.png");
     this.load.audio("player_shoot", "assets/audio/player_shoot.mp3");
     this.load.audio("enemy_hit", "assets/audio/enemy_hit.mp3");
+    this.load.image("shield", "assets/png/shield.png");
+    this.load.image("shieldPowerup", "assets/png/shieldPowerup.png");
+    this.load.image("doubleShotPowerup", "assets/png/doubleShotPowerup.png");
   }
 
   create() {
@@ -109,7 +112,6 @@ class levelOneScene extends Scene {
 
     this.debugText = this.add.text(16, 16, "");
     this.scoreText = this.add.text(400, 30, "", { font: "32px" });
-    //this.funnyText = this.add.text(0, 400, "y=400:-------------------------------------------------------------------------------------------------------------------")
 
     // dive bombing code:
 
@@ -121,6 +123,8 @@ class levelOneScene extends Scene {
     this.start_countdown = this.add.Number;
     this.start_countdown = 3;
 
+    this.createShieldPowerup();
+    this.createDoubleShotPowerup();
     this.time.addEvent({
       delay: 500,
       loop: true,
@@ -336,6 +340,11 @@ class levelOneScene extends Scene {
   update() {
     //if game_start_time is 0 it means the scene has just been created. for some reason it doesn't work
     //properly if i do this in create(), since it gets all weird when you pause or return to the main menu
+    if (this.shieldUp) {
+      this.physics.world.wrap(this.shield);
+      this.shield.body.x = this.ship.body.x - 48 / 2;
+      this.shield.body.y = this.ship.body.y - 52 / 2;
+    }
     if (this.game_start_time == 0) {
       this.game_start_time = this.time.now;
     }
@@ -679,13 +688,7 @@ class levelOneScene extends Scene {
       }
       if (this.time_remaining < 57 && !this.scene.isPaused("levelOneScene")) {
         if (Phaser.Input.Keyboard.JustDown(this.keys.SPACE)) {
-          this.sound_player_shoot.play();
-          this.laserGroup.fireLaser(
-            this.ship.x + this.ship.body.velocity.x * 0.03,
-            this.ship.y - 48,
-            this.ship.body.velocity.x,
-            this.ship.body.velocity.y
-          );
+          this.shoot();
         }
       }
     } else if (this.time_remaining != 0) {
@@ -733,6 +736,155 @@ class levelOneScene extends Scene {
     let heart = this.heartGroup.getLastNth(1, true);
     heart.setActive(false);
     heart.setVisible(false);
+  }
+  shieldLaserCollision(shield, enemyLaser) {
+    enemyLaser.disableBody(true, true);
+    this.destroyShield();
+  }
+
+  shieldEnemyCollision(shield, enemy) {
+    enemy.disableBody(true, true);
+    this.destroyShield();
+  }
+
+  shieldPowerupCollision(ship, shieldPowerup) {
+    if (this.shield != undefined) {
+      this.destroyShield();
+    }
+
+    shieldPowerup.disableBody(true, true);
+    this.createShield();
+  }
+
+  createShield() {
+    this.shieldUp = true;
+    this.shield = this.physics.add.image(this.ship.x, this.ship.y, "shield");
+    this.shield.body.setVelocity(
+      this.ship.body.velocity.x,
+      this.ship.body.velocity.y
+    );
+    // shield and enemy laser collision
+    this.physics.add.overlap(
+      this.shield,
+      this.enemyLaserGroup,
+      this.shieldLaserCollision,
+      null,
+      this
+    );
+
+    // shield and enemy collision
+    this.physics.add.overlap(
+      this.shield,
+      this.enemyGroup,
+      this.shieldEnemyCollision,
+      null,
+      this
+    );
+  }
+
+  destroyShield() {
+    this.shieldUp = false;
+    this.shield.destroy();
+  }
+  createShieldPowerup() {
+    const randX = Math.floor(Math.random() * 990 + 34);
+    const randY = Math.floor(Math.random() * 200 + 500);
+    while (randX > 1024 / 2 + 40 && randX < 1024 / 2 - 40) {
+      randX = Math.floor(Math.random() * 990 + 34);
+    }
+    this.shieldUp = false;
+    this.shieldPowerup = this.physics.add.image(randX, randY, "shieldPowerup");
+    this.physics.add.overlap(
+      this.ship,
+      this.shieldPowerup,
+      this.shieldPowerupCollision,
+      null,
+      this
+    );
+    this.time.addEvent({
+      delay: 5000,
+      callback: () => {
+        // refreshes shield powerup
+        this.shieldPowerup.setX(Math.floor(Math.random() * 990 + 34));
+        this.shieldPowerup.setY(Math.floor(Math.random() * 200 + 500));
+
+        if (!this.shieldPowerup.active) {
+          this.shieldPowerup.setActive(true);
+          this.shieldPowerup.enableBody();
+          this.shieldPowerup.setVisible(true);
+        }
+      },
+      loop: true,
+    });
+  }
+
+  doubleShotPowerupCollision(ship, doubleShotPowerup) {
+    this.doubleShot = true;
+    doubleShotPowerup.disableBody(true, true);
+  }
+  createDoubleShotPowerup() {
+    const randX = Math.floor(Math.random() * 990 + 34);
+    const randY = Math.floor(Math.random() * 200 + 500);
+    while (randX > 1024 / 2 + 40 && randX < 1024 / 2 - 40) {
+      randX = Math.floor(Math.random() * 990 + 34);
+    }
+    this.laserGroup2 = new LaserGroup(this);
+    this.doubleShot = false;
+    this.doubleShotPowerup = this.physics.add.image(
+      randX,
+      randY,
+      "doubleShotPowerup"
+    );
+    this.physics.add.overlap(
+      this.ship,
+      this.doubleShotPowerup,
+      this.doubleShotPowerupCollision,
+      null,
+      this
+    );
+    this.time.addEvent({
+      delay: 4500,
+      callback: () => {
+        // refreshes shield powerup
+        this.doubleShotPowerup.setX(Math.floor(Math.random() * 990 + 34));
+        this.doubleShotPowerup.setY(Math.floor(Math.random() * 200 + 500));
+
+        if (!this.doubleShotPowerup.active) {
+          this.doubleShotPowerup.setActive(true);
+          this.doubleShotPowerup.enableBody();
+          this.doubleShotPowerup.setVisible(true);
+        }
+      },
+      loop: true,
+    });
+  }
+  shoot() {
+    this.sound_player_shoot.play();
+    const doubleShotOffset = 20;
+    if (this.doubleShot == false) {
+      this.laserGroup.fireLaser(
+        this.ship.x + this.ship.body.velocity.x * 0.03,
+        this.ship.y - 48,
+        this.ship.body.velocity.x,
+        this.ship.body.velocity.y
+      );
+    } else if (
+      this.laserGroup.getFirstDead(false) &&
+      this.laserGroup2.getFirstDead(false)
+    ) {
+      this.laserGroup.fireLaser(
+        this.ship.x + this.ship.body.velocity.x * 0.03 - doubleShotOffset,
+        this.ship.y - 48,
+        this.ship.body.velocity.x,
+        this.ship.body.velocity.y
+      );
+      this.laserGroup2.fireLaser(
+        this.ship.x + this.ship.body.velocity.x * 0.03 + doubleShotOffset,
+        this.ship.y - 48,
+        this.ship.body.velocity.x,
+        this.ship.body.velocity.y
+      );
+    }
   }
 }
 
