@@ -28,8 +28,10 @@ class levelOneScene extends Scene {
     this.load.image("time_up", "assets/png/TIME_UP.png");
     this.load.image("fail", "assets/png/MISSION_FAILED.png");
     this.load.image("level", "assets/png/LEVEL1.png");
+    this.load.image("level2", "assets/png/LEVEL2.png")
     this.load.audio("player_shoot", "assets/audio/player_shoot.mp3");
     this.load.audio("enemy_hit", "assets/audio/enemy_hit.mp3");
+    this.load.audio("player_hit", "assets/audio/player_hit.mp3");
   }
 
   create() {
@@ -68,7 +70,7 @@ class levelOneScene extends Scene {
     this.ready_graphic = this.add.image(512, 350, "ready");
     this.level_graphic = this.add.image(512, 250, "level");
     this.small_level_graphic = this.add.image(950, 30, "level");
-    this.small_level_graphic.scale = 0.5;
+    this.small_level_graphic.scale = 0.5;  
     this.fire_graphic = this.add.image(512, 350, "fire");
     this.fire_graphic.visible = false;
     this.time_up_graphic = this.add.image(512, 350, "time_up");
@@ -78,7 +80,7 @@ class levelOneScene extends Scene {
 
     this.laserGroup = new LaserGroup(this);
 
-    this.enemyGroup = new EnemyGroup(this);
+    this.enemyGroup = new EnemyGroup(this, "levelOneScene");
     this.enemyLaserGroup = new EnemyLaserGroup(this);
 
     this.kill_count = this.add.Number;
@@ -86,7 +88,7 @@ class levelOneScene extends Scene {
 
     this.enemies_remaining = this.add.Number;
     this.enemies_per_wave = this.add.Number;
-    this.enemies_per_wave = 15;
+    this.enemies_per_wave = 14;
     this.enemies_remaining = this.enemies_per_wave;
 
     this.ship_health = 5;
@@ -115,6 +117,7 @@ class levelOneScene extends Scene {
 
     this.sound_player_shoot = this.sound.add("player_shoot");
     this.sound_enemy_hit = this.sound.add("enemy_hit");
+    this.sound_player_hit = this.sound.add("player_hit");
 
     let enemies = this.enemyGroup;
 
@@ -318,6 +321,7 @@ class levelOneScene extends Scene {
 
   enemyLaserCollision(player, enemyLaser) {
     if (this.time_remaining != 0 && !this.scene.isPaused("levelOneScene")) {
+      this.sound_player_hit.play();
       this.decrementHealth();
       enemyLaser.disableBody(true, true);
     }
@@ -325,8 +329,8 @@ class levelOneScene extends Scene {
 
   playerEnemyBodyCollision(player, enemy) {
     if (this.time_remaining != 0 && !this.scene.isPaused("levelOneScene")) {
+      this.sound_player_hit.play();
       this.decrementHealth();
-
       enemy.disableBody(true, true);
       this.enemies_remaining -= 1;
     }
@@ -381,13 +385,13 @@ class levelOneScene extends Scene {
 
     //this should be zero because then the enemies start to get off-cycle from one another
     //form a huge group on one side of the screen
-    if (this.enemies_remaining == 2) {
+    if (this.enemies_remaining <= 2) {
       //this.enemyGroup.destroy();
       //this.enemyLaserGroup.destroy();
 
       this.enemies_remaining += this.enemies_per_wave;
 
-      this.enemyGroup = new EnemyGroup(this);
+      this.enemyGroup = new EnemyGroup(this, "levelOneScene");
       //this.enemyLaserGroup = new EnemyLaserGroup(this);
 
       //this.laserGroup.physicsType = Phaser.Physics.ARCADE;

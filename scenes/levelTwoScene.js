@@ -20,7 +20,8 @@ class levelTwoScene extends Scene {
     this.load.image("ship_left", "assets/png/ship_left.png");
     this.load.image("ship_right", "assets/png/ship_right.png");
     this.load.image("missile", "assets/png/missile.png");
-    this.load.image("enemy1", "assets/png/enemy1.png");
+    this.load.image("enemy1", "assets/png/enemy1.png");      
+    this.load.image("enemy2", "assets/png/enemy2.png");
     this.load.image("enemyLaser", "assets/png/enemyLaser.png");
     this.load.image("sky", "assets/png/sky.png");
     this.load.image("ready", "assets/png/READY.png");
@@ -28,6 +29,10 @@ class levelTwoScene extends Scene {
     this.load.image("time_up", "assets/png/TIME_UP.png");
     this.load.image("fail", "assets/png/MISSION_FAILED.png");
     this.load.image("level", "assets/png/LEVEL1.png");
+    this.load.image("level2", "assets/png/LEVEL2.png");
+    this.load.audio("player_shoot", "assets/audio/player_shoot.mp3");
+    this.load.audio("enemy_hit", "assets/audio/enemy_hit.mp3");
+    this.load.audio("player_hit", "assets/audio/player_hit.mp3");
   }
 
   create() {
@@ -64,9 +69,9 @@ class levelTwoScene extends Scene {
     this.add.image(512, 768, "sky");
 
     this.ready_graphic = this.add.image(512, 350, "ready");
-    this.level_graphic = this.add.image(512, 250, "level");
-    this.small_level_graphic = this.add.image(950, 30, "level");
-    this.small_level_graphic.scale = 0.5;
+    this.level_graphic = this.add.image(512, 250, "level2");
+    this.small_level_graphic = this.add.image(950, 30, "level2");
+    this.small_level_graphic.scale = 0.5;  
     this.fire_graphic = this.add.image(512, 350, "fire");
     this.fire_graphic.visible = false;
     this.time_up_graphic = this.add.image(512, 350, "time_up");
@@ -76,7 +81,7 @@ class levelTwoScene extends Scene {
 
     this.laserGroup = new LaserGroup(this);
 
-    this.enemyGroup = new EnemyGroup(this);
+    this.enemyGroup = new EnemyGroup(this, "levelTwoScene");
     this.enemyLaserGroup = new EnemyLaserGroup(this);
 
     this.kill_count = this.add.Number;
@@ -101,12 +106,18 @@ class levelTwoScene extends Scene {
     this.ship = this.physics.add.image(512, 700, "ship");
     this.ship.body.velocity.x = 0;
     this.ship.body.velocity.y = 0;
+    //this.has_bounce_powerup = this.add.Number;
+    //this.has_bounce_powerup = 0;
 
     //this.ship.setCollideWorldBounds(true);
 
     this.debugText = this.add.text(16, 16, "");
     this.scoreText = this.add.text(400, 30, "", { font: "32px" });
     //this.funnyText = this.add.text(0, 400, "y=400:-------------------------------------------------------------------------------------------------------------------")
+
+    this.sound_player_shoot = this.sound.add("player_shoot");
+    this.sound_enemy_hit = this.sound.add("enemy_hit");
+    this.sound_player_hit = this.sound.add("player_hit");
 
     // dive bombing code:
 
@@ -275,7 +286,7 @@ class levelTwoScene extends Scene {
     this.enemyGroup.getChildren().forEach((enemy) => {
       this.time.addEvent({
         delay: Phaser.Math.FloatBetween(2000, 5000),
-        loop: true,
+        //loop: true,
         callback: () => {
           // console.log(`enemy shooting: ${enemy}`);
           if (enemy.active && enemy.y < 400) {
@@ -283,7 +294,8 @@ class levelTwoScene extends Scene {
               enemy.x,
               enemy.y + 48,
               enemy.body.velocity.x,
-              300
+              300//,
+              //this.has_bounce_powerup
             );
           }
         },
@@ -321,6 +333,7 @@ class levelTwoScene extends Scene {
 
   laserCollision(enemy, laser) {
     // disable the enemy and the laser that collided
+    this.sound_enemy_hit.play();
     enemy.disableBody(true, true);
     laser.disableBody(true, true);
     this.enemies_remaining -= 1;
@@ -330,6 +343,8 @@ class levelTwoScene extends Scene {
   enemyLaserCollision(player, enemyLaser) {
     if (this.time_remaining != 0 && !this.scene.isPaused("levelTwoScene")) {
       // disable the laser that collided
+      this.ship.setAlpha(0);
+      this.sound_player_hit.play();
       this.decrementHealth();
       enemyLaser.disableBody(true, true);
     }
@@ -337,14 +352,22 @@ class levelTwoScene extends Scene {
 
   playerEnemyBodyCollision(player, enemy) {
     if (this.time_remaining != 0 && !this.scene.isPaused("levelTwoScene")) {
+      this.ship.setAlpha(0);
+      this.sound_player_hit.play();
       this.decrementHealth();
-
       enemy.disableBody(true, true);
+      this.enemies_remaining -= 1;
     }
     // console.log("player collided with enemy body");
   }
 
   update() {
+    //this.has_bounce_powerup = this.kill_count % 2;
+
+    if(this.ship.alpha != 1){
+      this.ship.setAlpha(this.ship.alpha + 0.05);
+    }
+
     console.log("paused: " + this.scene.isPaused("levelTwoScene"));
     //if game_start_time is 0 it means the scene has just been created. for some reason it doesn't work
     //properly if i do this in create(), since it gets all weird when you pause or return to the main menu
@@ -399,9 +422,9 @@ class levelTwoScene extends Scene {
       //this.enemyGroup.destroy();
       //this.enemyLaserGroup.destroy();
 
-      this.enemies_remaining = this.enemies_per_wave;
+      this.enemies_remaining += this.enemies_per_wave;
 
-      this.enemyGroup = new EnemyGroup(this);
+      this.enemyGroup = new EnemyGroup(this, "levelTwoScene");
       //this.enemyLaserGroup = new EnemyLaserGroup(this);
 
       //this.laserGroup.physicsType = Phaser.Physics.ARCADE;
@@ -574,7 +597,7 @@ class levelTwoScene extends Scene {
       this.enemyGroup.getChildren().forEach((enemy) => {
         this.time.addEvent({
           delay: Phaser.Math.FloatBetween(500, 2500),
-          loop: true,
+          //loop: true,
           callback: () => {
             // console.log(`enemy shooting: ${enemy}`);
             if (enemy.active && enemy.y < 400) {
@@ -722,6 +745,7 @@ class levelTwoScene extends Scene {
       }
       if (this.time_remaining < 57 && !this.scene.isPaused("levelTwoScene")) {
         if (Phaser.Input.Keyboard.JustDown(this.keys.SPACE)) {
+          this.sound_player_shoot.play();
           this.laserGroup.fireLaser(
             this.ship.x + this.ship.body.velocity.x * 0.03,
             this.ship.y - 48,

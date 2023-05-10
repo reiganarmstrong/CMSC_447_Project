@@ -15,7 +15,7 @@ class clearMenuScene extends Scene {
     this.level = LEVEL_IDS.indexOf(this.levelKey) + 1;
     this.killCount = data.killCount;
     this.lifeCount = data.lifeCount;
-    this.score = (this.killCount + 2 * this.lifeCount) * this.level;
+    this.score = (this.killCount + 10 * this.lifeCount)/* * this.level*/;
   }
   preload() {
     this.load.html("clearMenu", "/html/clearMenu.html");
