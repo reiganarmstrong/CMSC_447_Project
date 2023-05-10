@@ -577,16 +577,16 @@ class bossScene extends Scene {
 
     }
 
-
     clearedLevel() {
-        this.scene.launch("deathMenuScene", {
+        this.scene.launch("clearMenuScene", {
             userData: this.userData,
             sceneKey: "bossScene",
             killCount: this.kill_count,
             lifeCount: this.ship_health,
         });
-        this.scene.pause();
+        this.scene.stop();
     }
+
 
     checkGameOver() {
         if (this.ship_health == 0) {
@@ -595,7 +595,7 @@ class bossScene extends Scene {
             this.level_graphic.setVisible(false);
             this.scene.launch("deathMenuScene", {
                 userData: this.userData,
-                sceneKey: "bossKey",
+                sceneKey: "bossScene",
             });
             this.scene.pause();
         }
