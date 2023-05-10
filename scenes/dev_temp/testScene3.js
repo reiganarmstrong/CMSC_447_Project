@@ -346,16 +346,6 @@ class testScene3 extends Scene {
     }
   }
 
-  shieldLaserCollision(shield, enemyLaser) {
-    enemyLaser.disableBody(true, true);
-    this.destroyShield();
-  }
-
-  shieldEnemyCollision(shield, enemy) {
-    enemy.disableBody(true, true);
-    this.destroyShield();
-  }
-
   addCollisons() {
     // create collision detection between enemies and player lasers
     this.physics.add.overlap(
@@ -391,6 +381,15 @@ class testScene3 extends Scene {
       null,
       this
     );
+  }
+  shieldLaserCollision(shield, enemyLaser) {
+    enemyLaser.disableBody(true, true);
+    this.destroyShield();
+  }
+
+  shieldEnemyCollision(shield, enemy) {
+    enemy.disableBody(true, true);
+    this.destroyShield();
   }
 
   shieldPowerupCollision(ship, shieldPowerup) {

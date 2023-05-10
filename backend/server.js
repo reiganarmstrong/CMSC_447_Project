@@ -116,7 +116,7 @@ server.put("/high_scores/local", async (req, res) => {
         body.level,
         body.score,
         player[`highScore${body.level}`],
-        player[`highScore${player.totalHighScore}`]
+        player.totalHighScore
       );
       res.status(200);
     } else {

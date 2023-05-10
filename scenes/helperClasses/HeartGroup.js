@@ -10,10 +10,11 @@ class HeartGroup extends Phaser.Physics.Arcade.Group {
       //   classType: Heart,
       frameQuantity: 7,
       //setXY: { x: 80, y: 70, stepX: 200, stepY: 0 },
-      setXY: { x: 30, y: 100, stepX: 30, stepY: 0 },
+      setXY: { x: 50, y: 730, stepX: 50, stepY: 0 },
       active: false,
       visible: false,
-      key: "heart",
+      key: "ship",
+      setScale: { x: 0.5, y: 0.5 },
     });
   }
 }
