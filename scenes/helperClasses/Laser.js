@@ -3,7 +3,6 @@ class Laser extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
     super(scene, x, y, "missile");
   }
-
   preUpdate(time, delta) {
     super.preUpdate(time, delta);
     if (this.y <= 0) {
@@ -29,6 +28,12 @@ class Laser extends Phaser.Physics.Arcade.Sprite {
   makeBounce() {
     this.setBounce(true);
     this.setCollideWorldBounds(true);
+    this.setTexture("bounceMissle");
+  }
+  stopBounce() {
+    this.setBounce(false);
+    this.setCollideWorldBounds(false);
+    this.setTexture("missile");
   }
 }
 export default Laser;

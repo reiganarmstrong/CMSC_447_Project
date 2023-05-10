@@ -20,6 +20,7 @@ class levelOneScene extends Scene {
     this.load.image("ship_left", "assets/png/ship_left.png");
     this.load.image("ship_right", "assets/png/ship_right.png");
     this.load.image("missile", "assets/png/missile.png");
+    this.load.image("bounceMissle", "assets/png/bounceMissle.png");
     this.load.image("enemy1", "assets/png/enemy1.png");
     this.load.image("enemyLaser", "assets/png/enemyLaser.png");
     this.load.image("sky", "assets/png/sky.png");
@@ -33,6 +34,7 @@ class levelOneScene extends Scene {
     this.load.image("shield", "assets/png/shield.png");
     this.load.image("shieldPowerup", "assets/png/shieldPowerup.png");
     this.load.image("doubleShotPowerup", "assets/png/doubleShotPowerup.png");
+    this.load.image("bouncePowerup", "assets/png/bouncePowerup.png");
   }
 
   create() {
@@ -125,6 +127,7 @@ class levelOneScene extends Scene {
 
     this.createShieldPowerup();
     this.createDoubleShotPowerup();
+    this.createBounceShotPowerup();
     this.time.addEvent({
       delay: 500,
       loop: true,
@@ -678,6 +681,11 @@ class levelOneScene extends Scene {
     if (this.doubleShot) {
       this.doubleShot = false;
     }
+    console.log("asdasdas");
+    console.log(this.bounceShots);
+    if (this.bounceShots) {
+      this.stopBouncing();
+    }
   }
 
   playerEnemyBodyCollision(player, enemy) {
@@ -689,6 +697,9 @@ class levelOneScene extends Scene {
     }
     if (this.doubleShot) {
       this.doubleShot = false;
+    }
+    if (this.bouceShots) {
+      this.stopBouncing();
     }
   }
   shieldLaserCollision(shield, enemyLaser) {
@@ -819,6 +830,68 @@ class levelOneScene extends Scene {
       loop: true,
     });
   }
+  bounceShotPowerupCollision(ship, bounceShotPowerup) {
+    this.startBouncing();
+    bounceShotPowerup.disableBody(true, true);
+  }
+  createBounceShotPowerup() {
+    const randX = Math.floor(Math.random() * 990 + 34);
+    const randY = Math.floor(Math.random() * 200 + 500);
+    while (randX > 1024 / 2 + 40 && randX < 1024 / 2 - 40) {
+      randX = Math.floor(Math.random() * 990 + 34);
+    }
+
+    this.bouceShots = false;
+    this.bounceShotPowerup = this.physics.add.image(
+      randX,
+      randY,
+      "bouncePowerup"
+    );
+    // this.physics.add.overlap(
+    //   this.ship,
+    //   this.bounceShotPowerup,
+    //   this.bounceShotPowerupCollision,
+    //   null,
+    //   this
+    // );
+    this.time.addEvent({
+      delay: 4750,
+      callback: () => {
+        // refreshes shield powerup
+        this.bounceShotPowerup.setX(Math.floor(Math.random() * 990 + 34));
+        this.bounceShotPowerup.setY(Math.floor(Math.random() * 200 + 500));
+
+        if (!this.bounceShotPowerup.active) {
+          this.bounceShotPowerup.setActive(true);
+          this.bounceShotPowerup.enableBody();
+          this.bounceShotPowerup.setVisible(true);
+        }
+      },
+      loop: true,
+    });
+  }
+  startBouncing() {
+    this.bounceShots = true;
+    this.laserGroup.getChildren().forEach((child) => {
+      child.makeBounce();
+    });
+    if (this.laserGroup2) {
+      this.laserGroup2.getChildren().forEach((child) => {
+        child.makeBounce();
+      });
+    }
+  }
+  stopBouncing() {
+    this.bounceShots = false;
+    this.laserGroup.getChildren().forEach((child) => {
+      child.stopBounce();
+    });
+    if (this.laserGroup2) {
+      this.laserGroup2.getChildren().forEach((child) => {
+        child.stopBounce();
+      });
+    }
+  }
   shoot() {
     this.sound_player_shoot.play();
     const doubleShotOffset = 20;
@@ -891,6 +964,13 @@ class levelOneScene extends Scene {
       this.ship,
       this.shieldPowerup,
       this.shieldPowerupCollision,
+      null,
+      this
+    );
+    this.physics.add.overlap(
+      this.ship,
+      this.bounceShotPowerup,
+      this.bounceShotPowerupCollision,
       null,
       this
     );
