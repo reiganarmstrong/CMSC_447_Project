@@ -13,24 +13,24 @@ class highScoresScene extends Scene {
     this.load.html("highScores", "/html/highScores.html");
   }
   create() {
-    // adds the menu
-    const menu = this.add
+    const selector = this.add
       .dom(width / 2, height / 2)
       .createFromCache("highScores");
-    const level1 = menu.getChildByID("level-1");
-    const level2 = menu.getChildByID("level-2");
-    const level3 = menu.getChildByID("level-3");
-    const total = menu.getChildByID("total");
-    const back = menu.getChildByID("back");
-    const userName = menu.getChildByID("user");
-    userName.innerHTML = `${this.userData.name}'s High Scores`;
-    menu.parent.classList.add("centered-container");
-    level1.textContent = `Level 1: ${this.userData.highScore1}`;
-    level2.textContent = `Level 2: ${this.userData.highScore2}`;
-    level3.textContent = `Level 3: ${this.userData.highScore3}`;
-    total.textContent = `Total Score: ${this.userData.totalHighScore}`;
+    const user = selector.getChildByID("user");
+    const yourScores = selector.getChildByID("your-scores");
+    const globalScores = selector.getChildByID("global-scores");
+    const back = selector.getChildByID("back");
+    user.textContent = this.userData.name;
+    selector.parent.classList.add("centered-container");
+
     back.addEventListener("click", () => {
-      this.scene.start("mainMenuScene");
+      this.scene.start("mainMenuScene", this.userData);
+    });
+    yourScores.addEventListener("click", () => {
+      this.scene.start("localHighScoresScene", this.userData);
+    });
+    globalScores.addEventListener("click", () => {
+      this.scene.start("globalHighScoresScene", this.userData);
     });
   }
   update(time, delta) {}
