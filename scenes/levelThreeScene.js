@@ -21,7 +21,8 @@ class levelThreeScene extends Scene {
     this.load.image("ship_right", "assets/png/ship_right.png");
     this.load.image("missile", "assets/png/missile.png");
     this.load.image("bounceMissle", "assets/png/bounceMissle.png");
-    this.load.image("enemy1", "assets/png/enemy1.png");
+    //this.load.image("enemy1", "assets/png/enemy1.png");
+    this.load.image("enemy2", "assets/png/enemy2.png");
     this.load.image("enemyLaser", "assets/png/enemyLaser.png");
     this.load.image("sky", "assets/png/sky.png");
     this.load.image("ready", "assets/png/READY.png");
@@ -39,6 +40,9 @@ class levelThreeScene extends Scene {
     this.load.audio("player_shoot", "assets/audio/player_shoot.mp3");
     this.load.audio("enemy_hit", "assets/audio/enemy_hit.mp3");
     this.load.audio("player_hit", "assets/audio/player_hit.mp3");
+
+    this.load.audio("start_sound", "assets/audio/start_sound.mp3");
+    this.load.audio("level_sound", "assets/audio/level_music.mp3");
   }
 
   create() {
@@ -73,6 +77,30 @@ class levelThreeScene extends Scene {
     this.time_remaining = 60;
 
     this.add.image(512, 768, "sky");
+
+    const colors = [0x051923, 0x13284a];
+    //holds the width and the height of the game screen
+    const width = this.game.config.width;
+    const height = this.game.config.height;
+    // Create a new Graphics object and draw the gradient
+    this.add
+      .graphics()
+      .fillGradientStyle(...colors, 1, 0.5, 0.5, 1, false)
+      .fillRect(0, 0, width, height);
+    //makes sure it covers the whole screen
+    // Define an array of colors for the stars
+    const starColors = [0xffffff, 0xffd700, 0xff69b4, 0x00ff00, 0x00ffff];
+    //Background Stars
+    for (let i = 0; i < 100; i++) {
+      //Phaser.Math.Between picks a random val between min and max
+      const x = Phaser.Math.Between(0, width);
+      const y = Phaser.Math.Between(0, height);
+      const size = Phaser.Math.Between(1, 3);
+      //picks random value from arr
+      const star = Phaser.Math.RND.pick(starColors);
+      this.add.graphics().fillStyle(star, 1).fillCircle(x, y, size);
+    }
+
     this.sound_player_shoot = this.sound.add("player_shoot");
     this.sound_player_hit = this.sound.add("player_hit");
 
@@ -91,7 +119,7 @@ class levelThreeScene extends Scene {
 
     this.laserGroup = new LaserGroup(this);
 
-    this.enemyGroup = new EnemyGroup(this, "enemy1", 2);
+    this.enemyGroup = new EnemyGroup(this, "enemy2", 3);
     this.enemyLaserGroup = new EnemyLaserGroup(this);
 
     this.kill_count = this.add.Number;
@@ -99,7 +127,7 @@ class levelThreeScene extends Scene {
 
     this.enemies_remaining = this.add.Number;
     this.enemies_per_wave = this.add.Number;
-    this.enemies_per_wave = 14;
+    this.enemies_per_wave = 15;
     this.enemies_remaining = this.enemies_per_wave;
 
     this.ship_health = 5;
@@ -308,9 +336,21 @@ class levelThreeScene extends Scene {
     });
 
     this.createOverlaps();
+
+    this.strtS = this.sound.add("start_sound");
+    this.lvlS = this.sound.add("level_sound");
+    this.strtS.play();
+    this.strtS.on('complete', function() {
+      this.lvlS.play();
+      this.lvlS.setVolume(0.25);
+      this.lvlS.setLoop(true);
+    }.bind(this));
   }
 
   update() {
+    if(this.ship.alpha != 1){
+      this.ship.setAlpha(this.ship.alpha + 0.05);
+    }
     this.updateShieldPos();
 
     console.log("paused: " + this.scene.isPaused("levelThreeScene"));
@@ -329,6 +369,8 @@ class levelThreeScene extends Scene {
       this.last_pause_start = this.pause_start;
       //this.time_remaining += this.time.now - this.pause_start;
       //this.pause_start = 0;
+      this.lvlS.resume()
+      this.strtS.resume()
     }
 
     this.time_elapsed = this.time.now - this.time_paused - this.game_start_time;
@@ -373,7 +415,7 @@ class levelThreeScene extends Scene {
 
       this.enemies_remaining = this.enemies_per_wave;
 
-      this.enemyGroup = new EnemyGroup(this, "enemy1", 2);
+      this.enemyGroup = new EnemyGroup(this, "enemy2", 3);
       //this.enemyLaserGroup = new EnemyLaserGroup(this);
 
       //this.laserGroup.physicsType = Phaser.Physics.ARCADE;
@@ -603,6 +645,7 @@ class levelThreeScene extends Scene {
     if (this.time_remaining == 0 && !this.scene.isPaused("levelThreeScene")) {
       this.ship.setVelocityY(this.ship.body.velocity.y - 10);
       if (this.ship.y <= -100) {
+        this.lvlS.stop();
         this.clearedLevel();
       }
     }
@@ -682,6 +725,8 @@ class levelThreeScene extends Scene {
         this.pause_start = this.time.now;
       }
       console.log("Esc detected, pausing game.");
+      this.lvlS.pause();
+      this.strtS.pause();
       this.scene.pause();
       this.scene.launch("pauseMenuScene", {
         userData: this.userData,
@@ -692,6 +737,8 @@ class levelThreeScene extends Scene {
 
   checkGameOver() {
     if (this.ship_health == 0) {
+      this.lvlS.stop();
+      this.ship.setAlpha(0);
       this.ready_graphic.setVisible(false);
       this.fire_graphic.setVisible(false);
       this.level_graphic.setVisible(false);
@@ -730,8 +777,9 @@ class levelThreeScene extends Scene {
     this.kill_count += 1;
   }
   enemyLaserCollision(player, enemyLaser) {
-    this.sound_player_hit.play();
     if (this.time_remaining != 0 && !this.scene.isPaused("levelThreeScene")) {
+      this.ship.setAlpha(0);
+      this.sound_player_hit.play();
       this.decrementHealth();
       enemyLaser.disableBody(true, true);
     }
@@ -747,8 +795,9 @@ class levelThreeScene extends Scene {
   }
 
   playerEnemyBodyCollision(player, enemy) {
-    this.sound_player_hit.play();
     if (this.time_remaining != 0 && !this.scene.isPaused("levelThreeScene")) {
+      this.ship.setAlpha(0);
+      this.sound_player_hit.play();
       this.decrementHealth();
 
       enemy.disableBody(true, true);

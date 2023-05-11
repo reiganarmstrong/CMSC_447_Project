@@ -21,7 +21,7 @@ class levelOneScene extends Scene {
     this.load.image("ship_right", "assets/png/ship_right.png");
     this.load.image("missile", "assets/png/missile.png");
     this.load.image("bounceMissle", "assets/png/bounceMissle.png");
-    this.load.image("enemy1", "assets/png/enemy1.png");
+    this.load.image("enemy4", "assets/png/enemy4.png");
     this.load.image("enemyLaser", "assets/png/enemyLaser.png");
     this.load.image("sky", "assets/png/sky.png");
     this.load.image("ready", "assets/png/READY.png");
@@ -37,6 +37,9 @@ class levelOneScene extends Scene {
     this.load.image("bouncePowerup", "assets/png/bouncePowerup.png");
     this.load.image("piercePowerup", "assets/png/piercePowerup.png");
     this.load.audio("player_hit", "assets/audio/player_hit.mp3");
+
+    this.load.audio("start_sound", "assets/audio/start_sound.mp3");
+    this.load.audio("level_sound", "assets/audio/level_music.mp3");
   }
 
   create() {
@@ -72,6 +75,29 @@ class levelOneScene extends Scene {
 
     this.add.image(512, 768, "sky");
 
+    const colors = [0x051923, 0x13284a];
+    //holds the width and the height of the game screen
+    const width = this.game.config.width;
+    const height = this.game.config.height;
+    // Create a new Graphics object and draw the gradient
+    this.add
+      .graphics()
+      .fillGradientStyle(...colors, 1, 0.5, 0.5, 1, false)
+      .fillRect(0, 0, width, height);
+    //makes sure it covers the whole screen
+    // Define an array of colors for the stars
+    const starColors = [0xffffff, 0xffd700, 0xff69b4, 0x00ff00, 0x00ffff];
+    //Background Stars
+    for (let i = 0; i < 100; i++) {
+      //Phaser.Math.Between picks a random val between min and max
+      const x = Phaser.Math.Between(0, width);
+      const y = Phaser.Math.Between(0, height);
+      const size = Phaser.Math.Between(1, 3);
+      //picks random value from arr
+      const star = Phaser.Math.RND.pick(starColors);
+      this.add.graphics().fillStyle(star, 1).fillCircle(x, y, size);
+    }
+
     this.ready_graphic = this.add.image(512, 350, "ready");
     this.level_graphic = this.add.image(512, 250, "level");
     this.small_level_graphic = this.add.image(950, 30, "level");
@@ -85,7 +111,7 @@ class levelOneScene extends Scene {
 
     this.laserGroup = new LaserGroup(this);
 
-    this.enemyGroup = new EnemyGroup(this, "enemy1", 1);
+    this.enemyGroup = new EnemyGroup(this, "enemy4", 1);
     this.enemyLaserGroup = new EnemyLaserGroup(this);
 
     this.kill_count = this.add.Number;
@@ -140,9 +166,21 @@ class levelOneScene extends Scene {
     this.startEnemyShotPattern();
 
     this.createOverlaps();
+
+    this.strtS = this.sound.add("start_sound");
+    this.lvlS = this.sound.add("level_sound");
+    this.strtS.play();
+    this.strtS.on('complete', function() {
+      this.lvlS.play();
+      this.lvlS.setVolume(0.25);
+      this.lvlS.setLoop(true);
+    }.bind(this));
   }
 
   update() {
+    if(this.ship.alpha != 1){
+      this.ship.setAlpha(this.ship.alpha + 0.05);
+    }
     //if game_start_time is 0 it means the scene has just been created. for some reason it doesn't work
     //properly if i do this in create(), since it gets all weird when you pause or return to the main menu
     this.updateShieldPos();
@@ -158,6 +196,8 @@ class levelOneScene extends Scene {
       this.last_pause_start = this.pause_start;
       //this.time_remaining += this.time.now - this.pause_start;
       //this.pause_start = 0;
+      this.lvlS.resume()
+      this.strtS.resume()
     }
 
     this.time_elapsed = this.time.now - this.time_paused - this.game_start_time;
@@ -203,7 +243,7 @@ class levelOneScene extends Scene {
 
       this.enemies_remaining += this.enemies_per_wave;
 
-      this.enemyGroup = new EnemyGroup(this, "enemy1", 1);
+      this.enemyGroup = new EnemyGroup(this, "enemy4", 1);
       //this.enemyLaserGroup = new EnemyLaserGroup(this);
 
       //this.laserGroup.physicsType = Phaser.Physics.ARCADE;
@@ -265,6 +305,7 @@ class levelOneScene extends Scene {
     if (this.time_remaining == 0 && !this.scene.isPaused("levelOneScene")) {
       this.ship.setVelocityY(this.ship.body.velocity.y - 10);
       if (this.ship.y <= -100) {
+        this.lvlS.stop();
         this.clearedLevel();
       }
     }
@@ -341,6 +382,8 @@ class levelOneScene extends Scene {
         this.pause_start = this.time.now;
       }
       console.log("Esc detected, pausing game.");
+      this.lvlS.pause();
+      this.strtS.pause();
       this.scene.launch("pauseMenuScene", {
         userData: this.userData,
         sceneKey: "levelOneScene",
@@ -423,6 +466,8 @@ class levelOneScene extends Scene {
 
   checkGameOver() {
     if (this.ship_health == 0) {
+      this.lvlS.stop();
+      this.ship.setAlpha(0);
       this.ready_graphic.setVisible(false);
       this.fire_graphic.setVisible(false);
       this.level_graphic.setVisible(false);
@@ -463,8 +508,9 @@ class levelOneScene extends Scene {
     this.kill_count += 1;
   }
   enemyLaserCollision(player, enemyLaser) {
-    this.sound_player_hit.play();
     if (this.time_remaining != 0 && !this.scene.isPaused("levelOneScene")) {
+      this.ship.setAlpha(0);
+      this.sound_player_hit.play();
       this.decrementHealth();
       enemyLaser.disableBody(true, true);
     }
@@ -480,8 +526,9 @@ class levelOneScene extends Scene {
   }
 
   playerEnemyBodyCollision(player, enemy) {
-    this.sound_player_hit.play();
     if (this.time_remaining != 0 && !this.scene.isPaused("levelOneScene")) {
+      this.ship.setAlpha(0);
+      this.sound_player_hit.play();
       this.decrementHealth();
 
       enemy.disableBody(true, true);

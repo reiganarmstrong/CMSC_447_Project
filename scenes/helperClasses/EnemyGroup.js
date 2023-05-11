@@ -8,41 +8,33 @@ class EnemyGroup extends Phaser.Physics.Arcade.Group {
 
     // Initialize the group
     if (version == 2) {
-      this.createMultiple({
-        classType: Enemy,
-        frameQuantity: 5,
-        //setXY: { x: 80, y: 70, stepX: 200, stepY: 0 },
-        setXY: { x: 200, y: 70, stepX: 160, stepY: 0 },
-        active: true,
-        visible: true,
-        key: id,
-      });
+			this.createMultiple({
+				classType: Enemy,
+				frameQuantity: 5,
+				setXY: { x: 200, y: 70, stepX: 160, stepY: 0 },
+				active: true,
+				visible: true,
+				key: id,
+			});
+	
+			this.createMultiple({
+				classType: Enemy,
+				frameQuantity: 4,
+				setXY: { x: 280, y: 140, stepX: 160, stepY: 0 },
+				active: true,
+				visible: true,
+				key: id,
+			});
 
-      //THIS INCLUDES COMMENTED CODE THAT WILL BE USED IN A SEPARATE ENEMYGROUP!!!!!!
-      //THIS CODE IS USED FOR THE FIRST ENEMY GROUP TYPE!!!!
-      //frameQuantity: 4,
-      //setXY: { x: 280, y: 140, stepX: 160, stepY: 0 },
-      this.createMultiple({
-        classType: Enemy,
-        frameQuantity: 5,
-        //setXY: { x: 80, y: 70, stepX: 200, stepY: 0 },
-        setXY: { x: 120, y: 140, stepX: 200, stepY: 0 },
-
-        active: true,
-        visible: true,
-        key: id,
-      });
-
-      this.createMultiple({
-        classType: Enemy,
-        frameQuantity: 5,
-        //setXY: { x: 80, y: 70, stepX: 200, stepY: 0 },
-        setXY: { x: 200, y: 210, stepX: 160, stepY: 0 },
-        active: true,
-        visible: true,
-        key: id,
-      });
-    } else {
+			this.createMultiple({
+				classType: Enemy,
+				frameQuantity: 5,
+				setXY: { x: 200, y: 210, stepX: 160, stepY: 0 },
+				active: true,
+				visible: true,
+				key: id,
+			});
+    } else if(version == 1){
       this.createMultiple({
         classType: Enemy,
         frameQuantity: 5,
@@ -58,6 +50,33 @@ class EnemyGroup extends Phaser.Physics.Arcade.Group {
         frameQuantity: 4,
         //setXY: { x: 80, y: 70, stepX: 200, stepY: 0 },
         setXY: { x: 280, y: 140, stepX: 160, stepY: 0 },
+        active: true,
+        visible: true,
+        key: id,
+      });
+    } else if(version == 3){
+      this.createMultiple({
+        classType: Enemy,
+        frameQuantity: 5,
+        setXY: { x: 200, y: 70, stepX: 160, stepY: 0 },
+        active: true,
+        visible: true,
+        key: id,
+      });
+
+      this.createMultiple({
+        classType: Enemy,
+        frameQuantity: 5,
+        setXY: { x: 120, y: 140, stepX: 200, stepY: 0 },
+        active: true,
+        visible: true,
+        key: id,
+      });
+
+      this.createMultiple({
+        classType: Enemy,
+        frameQuantity: 5,
+        setXY: { x: 200, y: 210, stepX: 160, stepY: 0 },
         active: true,
         visible: true,
         key: id,
