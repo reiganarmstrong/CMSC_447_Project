@@ -43,7 +43,8 @@ class levelSelectorScene extends Scene {
     const level1 = selector.getChildByID("level-1");
     const level2 = selector.getChildByID("level-2");
     const level3 = selector.getChildByID("level-3");
-    const levels = [level1, level2, level3];
+    const boss = selector.getChildByID("boss");
+    const levels = [level1, level2, level3, boss];
     const back = selector.getChildByID("back");
     user.textContent = this.userData.name;
     selector.parent.classList.add("centered-container");
@@ -59,6 +60,8 @@ class levelSelectorScene extends Scene {
             this.scene.start("levelTwoScene", this.userData);
           } else if (i == 2) {
             this.scene.start("levelThreeScene", this.userData);
+          } else if (i == 3) {
+            this.scene.start("bossScene", this.userData);
           }
         }
       });

@@ -8,6 +8,7 @@ const compiler = webpack(config);
 const axios = require("axios");
 const getHighScores = require("./apiHelpers/getHighScores");
 const updateHighScore = require("./apiHelpers/updateHighScore");
+const updatePlayerLevel = require("./apiHelpers/updatePlayerLevel");
 const port = 3000;
 
 const server = express();
@@ -122,7 +123,41 @@ server.put("/high_scores/local", async (req, res) => {
     } else {
       res.status(409);
       res.statusMessage =
-        "Score on server in database is higher than this value";
+        "Score on server in database is higher than or equal to this value";
+    }
+    db.close((err) => {
+      if (err) {
+        console.log(err.message);
+      } else {
+        console.log("Database Closed!");
+      }
+    });
+    if (newPlayerData != null) {
+      res.json(newPlayerData);
+    } else {
+      res.json(player);
+    }
+  } else {
+    res.status(400);
+    res.statusMessage = "Missing body fields";
+    res.send();
+  }
+});
+
+server.put("/player/level", async (req, res) => {
+  const body = req.body;
+  const requiredParams = ["name", "level"];
+  if (checkRequiredParams(body, requiredParams)) {
+    const db = getDb();
+    const player = await handleLogin(db, body.name);
+    let newPlayerData = null;
+    if (player["level"] < body.level) {
+      newPlayerData = await updatePlayerLevel(db, player.name, body.level);
+      res.status(200);
+    } else {
+      res.status(409);
+      res.statusMessage =
+        "Level on server in database is higher than or equal to this value";
     }
     db.close((err) => {
       if (err) {

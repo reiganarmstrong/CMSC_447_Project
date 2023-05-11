@@ -4,6 +4,7 @@ const levelFields = [
   "highScore1",
   "highScore2",
   "highScore3",
+  "bossCleared",
   "totalHighScore",
 ];
 // name and level

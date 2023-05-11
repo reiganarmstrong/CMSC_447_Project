@@ -1,7 +1,12 @@
 import { Scene } from "phaser";
 import { width, height } from "./app";
 import axios from "axios";
-const LEVEL_IDS = ["levelOneScene", "levelTwoScene", "levelThreeScene"];
+const LEVEL_IDS = [
+  "levelOneScene",
+  "levelTwoScene",
+  "levelThreeScene",
+  "bossScene",
+];
 const PUT_URL = "http://localhost:3000/high_scores/local";
 const GET_POST_URL = "http://localhost:3000/high_scores/global";
 class clearMenuScene extends Scene {
@@ -13,9 +18,14 @@ class clearMenuScene extends Scene {
     this.userData = data.userData;
     this.levelKey = data.sceneKey;
     this.level = LEVEL_IDS.indexOf(this.levelKey) + 1;
-    this.killCount = data.killCount;
     this.lifeCount = data.lifeCount;
-    this.score = (this.killCount + 2 * this.lifeCount) * this.level;
+    if (this.level != 4) {
+      this.killCount = data.killCount;
+      this.score = (this.killCount + 2 * this.lifeCount) * this.level;
+    } else {
+      this.killCount = 1;
+      this.score = 500;
+    }
   }
   preload() {
     this.load.html("clearMenu", "/html/clearMenu.html");
@@ -33,19 +43,30 @@ class clearMenuScene extends Scene {
     const restart = menu.getChildByID("restart");
     const mainMenu = menu.getChildByID("main-menu");
     menu.parent.classList.add("centered-container");
-    title.textContent = `CLEARED LEVEL ${this.level}`;
+    if (this.level != 4) {
+      title.textContent = `CLEARED LEVEL ${this.level}`;
+    } else {
+      title.textContent = `CLEARED BOSS LEVEL`;
+    }
     killCount.textContent = `KILL COUNT: ${this.killCount}`;
     lifeCount.textContent = `LIVES LEFT: ${this.lifeCount}`;
     finalScore.textContent = `FINAL SCORE: ${this.score}`;
-    this.updateHighScores(title).then(() => {
-      mainMenu.addEventListener("click", () => {
-        this.scene.stop(this.levelKey);
-        this.scene.start("mainMenuScene", this.userData);
+    if (this.level == 4) {
+      finalScore.textContent += " (MAX)";
+    }
+    this.updateHighScores(title)
+      .then(() => {
+        this.incrementPlayerLevel();
+      })
+      .then(() => {
+        mainMenu.addEventListener("click", () => {
+          this.scene.stop(this.levelKey);
+          this.scene.start("mainMenuScene", this.userData);
+        });
+        restart.addEventListener("click", () => {
+          this.restartLevel();
+        });
       });
-      restart.addEventListener("click", () => {
-        this.restartLevel();
-      });
-    });
   }
 
   async updateHighScores(title) {
@@ -62,7 +83,9 @@ class clearMenuScene extends Scene {
         },
       });
       this.userData = res.data[0];
-      title.textContent += " (NEW HIGH SCORE!)";
+      if (this.level != 4) {
+        title.textContent += " (NEW HIGH SCORE!)";
+      }
       const postGlobalHighScores = (await axios.get(GET_POST_URL)).data;
       if (
         JSON.stringify(initialGlobalHighScores) !=
@@ -75,6 +98,22 @@ class clearMenuScene extends Scene {
       this.userData = err.response.data;
     }
     console.log(this.userData);
+  }
+  async incrementPlayerLevel() {
+    try {
+      const body = {
+        name: this.userData.name,
+        level: this.userData.level + 1,
+      };
+      const res = await axios.put("/player/level", body, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      this.userData = res.data[0];
+    } catch (err) {
+      this.userData = err.response.data;
+    }
   }
 
   restartLevel() {
