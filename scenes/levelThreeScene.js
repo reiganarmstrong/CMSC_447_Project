@@ -36,6 +36,9 @@ class levelThreeScene extends Scene {
     this.load.image("doubleShotPowerup", "assets/png/doubleShotPowerup.png");
     this.load.image("bouncePowerup", "assets/png/bouncePowerup.png");
     this.load.image("piercePowerup", "assets/png/piercePowerup.png");
+    this.load.audio("player_shoot", "assets/audio/player_shoot.mp3");
+    this.load.audio("enemy_hit", "assets/audio/enemy_hit.mp3");
+    this.load.audio("player_hit", "assets/audio/player_hit.mp3");
   }
 
   create() {
@@ -70,6 +73,10 @@ class levelThreeScene extends Scene {
     this.time_remaining = 60;
 
     this.add.image(512, 768, "sky");
+    this.sound_player_shoot = this.sound.add("player_shoot");
+    this.sound_player_hit = this.sound.add("player_hit");
+
+    this.sound_enemy_hit = this.sound.add("enemy_hit");
 
     this.ready_graphic = this.add.image(512, 350, "ready");
     this.level_graphic = this.add.image(512, 250, "level3");
@@ -356,7 +363,8 @@ class levelThreeScene extends Scene {
 
     //this should be zero because then the enemies start to get off-cycle from one another
     //form a huge group on one side of the screen
-    if (this.enemies_remaining == 0) {
+    console.log(this.enemies_remaining);
+    if (this.enemies_remaining <= 0) {
       //this.enemyGroup.destroy();
       //this.enemyLaserGroup.destroy();
 
@@ -710,7 +718,7 @@ class levelThreeScene extends Scene {
   }
   laserCollision(enemy, laser) {
     // disable the enemy and the laser that collided
-    // this.sound_enemy_hit.play();
+    this.sound_enemy_hit.play();
     enemy.disableBody(true, true);
     if (this.pierceShots == false) {
       laser.disableBody(true, true);
@@ -719,6 +727,7 @@ class levelThreeScene extends Scene {
     this.kill_count += 1;
   }
   enemyLaserCollision(player, enemyLaser) {
+    this.sound_player_hit.play();
     if (this.time_remaining != 0 && !this.scene.isPaused("levelThreeScene")) {
       this.decrementHealth();
       enemyLaser.disableBody(true, true);
@@ -726,15 +735,16 @@ class levelThreeScene extends Scene {
     if (this.doubleShot) {
       this.doubleShot = false;
     }
-    if (this.bounceShots) {
-      this.stopBouncing();
-    }
+    // if (this.bounceShots) {
+    //   this.stopBouncing();
+    // }
     if (this.pierceShots) {
       this.pierceShots = false;
     }
   }
 
   playerEnemyBodyCollision(player, enemy) {
+    this.sound_player_hit.play();
     if (this.time_remaining != 0 && !this.scene.isPaused("levelThreeScene")) {
       this.decrementHealth();
 
@@ -886,68 +896,68 @@ class levelThreeScene extends Scene {
       loop: true,
     });
   }
-  bounceShotPowerupCollision(ship, bounceShotPowerup) {
-    this.startBouncing();
-    bounceShotPowerup.disableBody(true, true);
-  }
-  createBounceShotPowerup() {
-    const randX = Math.floor(Math.random() * 990 + 34);
-    const randY = Math.floor(Math.random() * 200 + 500);
-    while (randX > 1024 / 2 + 40 && randX < 1024 / 2 - 40) {
-      randX = Math.floor(Math.random() * 990 + 34);
-    }
+  // bounceShotPowerupCollision(ship, bounceShotPowerup) {
+  //   this.startBouncing();
+  //   bounceShotPowerup.disableBody(true, true);
+  // }
+  // createBounceShotPowerup() {
+  //   const randX = Math.floor(Math.random() * 990 + 34);
+  //   const randY = Math.floor(Math.random() * 200 + 500);
+  //   while (randX > 1024 / 2 + 40 && randX < 1024 / 2 - 40) {
+  //     randX = Math.floor(Math.random() * 990 + 34);
+  //   }
 
-    this.bouceShots = false;
-    this.bounceShotPowerup = this.physics.add.image(
-      randX,
-      randY,
-      "bouncePowerup"
-    );
-    // this.physics.add.overlap(
-    //   this.ship,
-    //   this.bounceShotPowerup,
-    //   this.bounceShotPowerupCollision,
-    //   null,
-    //   this
-    // );
-    this.time.addEvent({
-      delay: 4750,
-      callback: () => {
-        // refreshes shield powerup
-        this.bounceShotPowerup.setX(Math.floor(Math.random() * 990 + 34));
-        this.bounceShotPowerup.setY(Math.floor(Math.random() * 200 + 500));
+  //   this.bouceShots = false;
+  //   this.bounceShotPowerup = this.physics.add.image(
+  //     randX,
+  //     randY,
+  //     "bouncePowerup"
+  //   );
+  //   // this.physics.add.overlap(
+  //   //   this.ship,
+  //   //   this.bounceShotPowerup,
+  //   //   this.bounceShotPowerupCollision,
+  //   //   null,
+  //   //   this
+  //   // );
+  //   this.time.addEvent({
+  //     delay: 4750,
+  //     callback: () => {
+  //       // refreshes shield powerup
+  //       this.bounceShotPowerup.setX(Math.floor(Math.random() * 990 + 34));
+  //       this.bounceShotPowerup.setY(Math.floor(Math.random() * 200 + 500));
 
-        if (!this.bounceShotPowerup.active) {
-          this.bounceShotPowerup.setActive(true);
-          this.bounceShotPowerup.enableBody();
-          this.bounceShotPowerup.setVisible(true);
-        }
-      },
-      loop: true,
-    });
-  }
-  startBouncing() {
-    this.bounceShots = true;
-    this.laserGroup.getChildren().forEach((child) => {
-      child.makeBounce();
-    });
-    if (this.laserGroup2) {
-      this.laserGroup2.getChildren().forEach((child) => {
-        child.makeBounce();
-      });
-    }
-  }
-  stopBouncing() {
-    this.bounceShots = false;
-    this.laserGroup.getChildren().forEach((child) => {
-      child.stopBounce();
-    });
-    if (this.laserGroup2) {
-      this.laserGroup2.getChildren().forEach((child) => {
-        child.stopBounce();
-      });
-    }
-  }
+  //       if (!this.bounceShotPowerup.active) {
+  //         this.bounceShotPowerup.setActive(true);
+  //         this.bounceShotPowerup.enableBody();
+  //         this.bounceShotPowerup.setVisible(true);
+  //       }
+  //     },
+  //     loop: true,
+  //   });
+  // }
+  // startBouncing() {
+  //   this.bounceShots = true;
+  //   this.laserGroup.getChildren().forEach((child) => {
+  //     child.makeBounce();
+  //   });
+  //   if (this.laserGroup2) {
+  //     this.laserGroup2.getChildren().forEach((child) => {
+  //       child.makeBounce();
+  //     });
+  //   }
+  // }
+  // stopBouncing() {
+  //   this.bounceShots = false;
+  //   this.laserGroup.getChildren().forEach((child) => {
+  //     child.stopBounce();
+  //   });
+  //   if (this.laserGroup2) {
+  //     this.laserGroup2.getChildren().forEach((child) => {
+  //       child.stopBounce();
+  //     });
+  //   }
+  // }
   pierceShotPowerupCollision(ship, pierceShotPowerup) {
     this.pierceShots = true;
     pierceShotPowerup.disableBody(true, true);
@@ -991,11 +1001,11 @@ class levelThreeScene extends Scene {
   createPowerups() {
     this.createShieldPowerup();
     this.createDoubleShotPowerup();
-    this.createBounceShotPowerup();
+    // this.createBounceShotPowerup();
     this.createPierceShotPowerup();
   }
   shoot() {
-    // this.sound_player_shoot.play();
+    this.sound_player_shoot.play();
     const doubleShotOffset = 20;
     if (this.doubleShot == false) {
       this.laserGroup.fireLaser(
@@ -1069,13 +1079,13 @@ class levelThreeScene extends Scene {
       null,
       this
     );
-    this.physics.add.overlap(
-      this.ship,
-      this.bounceShotPowerup,
-      this.bounceShotPowerupCollision,
-      null,
-      this
-    );
+    // this.physics.add.overlap(
+    //   this.ship,
+    //   this.bounceShotPowerup,
+    //   this.bounceShotPowerupCollision,
+    //   null,
+    //   this
+    // );
     this.physics.add.overlap(
       this.ship,
       this.pierceShotPowerup,

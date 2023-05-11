@@ -20,6 +20,7 @@ class localHighScoresScene extends Scene {
     const level1 = menu.getChildByID("level-1");
     const level2 = menu.getChildByID("level-2");
     const level3 = menu.getChildByID("level-3");
+    const boss = menu.getChildByID("boss");
     const total = menu.getChildByID("total");
     const back = menu.getChildByID("back");
     const userName = menu.getChildByID("user");
@@ -29,6 +30,11 @@ class localHighScoresScene extends Scene {
       level1.textContent = `Level 1: ${this.userData.highScore1}`;
       level2.textContent = `Level 2: ${this.userData.highScore2}`;
       level3.textContent = `Level 3: ${this.userData.highScore3}`;
+      if (this.userData.bossCleared > 0) {
+        boss.textContent = `Boss Level: ${this.userData.bossCleared} (MAX)`;
+      } else {
+        boss.textContent = `Boss Level: ${this.userData.bossCleared}`;
+      }
       total.textContent = `Total Score: ${this.userData.totalHighScore}`;
       back.addEventListener("click", () => {
         this.scene.start("highScoresScene", this.userData);

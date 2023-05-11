@@ -12,6 +12,7 @@ import deathMenuScene from "./deathMenuScene";
 import clearMenuScene from "./clearLevelScene";
 import localHighScoresScene from "./localHighScoresScene";
 import globalHighScoresScene from "./globalHighScoresScene";
+import bossScene from "./bossScene";
 
 const width = 1024;
 const height = 768;
@@ -45,6 +46,7 @@ const config = {
     clearMenuScene,
     localHighScoresScene,
     globalHighScoresScene,
+    bossScene,
   ],
 };
 
