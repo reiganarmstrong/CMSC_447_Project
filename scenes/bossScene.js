@@ -40,7 +40,10 @@ class bossScene extends Scene {
     this.load.image("doubleShotPowerup", "assets/png/doubleShotPowerup.png");
     this.load.image("bouncePowerup", "assets/png/bouncePowerup.png");
     this.load.image("piercePowerup", "assets/png/piercePowerup.png");
-    this.load.image("boss", "assets/enemy1.png");
+    this.load.image("boss", "assets/png/enemy5.png");
+
+    this.load.audio("start_sound", "assets/audio/start_sound.mp3");
+    this.load.audio("level_sound", "assets/audio/level_music.mp3");
   }
 
   create() {
@@ -296,8 +299,17 @@ class bossScene extends Scene {
       callbackScope: this,
     });
 
-    // boss takes 7 hits
-    this.boss.health = 7;
+    // boss takes 15 hits
+    this.boss.health = 45;
+
+    this.strtS = this.sound.add("start_sound");
+    this.lvlS = this.sound.add("level_sound");
+    this.strtS.play();
+    this.strtS.on('complete', function() {
+      this.lvlS.play();
+      this.lvlS.setVolume(0.25);
+      this.lvlS.setLoop(true);
+    }.bind(this));
   }
 
   playerLaserBossCollision(laser, boss) {
@@ -324,8 +336,9 @@ class bossScene extends Scene {
   }
 
   bossLaserCollision(player, enemyLaser) {
-    this.sound_player_hit.play();
     if (this.time_remaining != 0 && !this.scene.isPaused("bossScene")) {
+      this.ship.setAlpha(0);
+      this.sound_player_hit.play();
       // disable the laser that collided
       this.ship_health -= 1;
       if (this.ship_health == 4) {
@@ -351,9 +364,10 @@ class bossScene extends Scene {
   }
 
   bossBigLaserCollision(player, bigLaser) {
-    this.sound_player_hit.play();
     bigLaser.disableBody(true, true);
     if (this.time_remaining != 0 && !this.scene.isPaused("bossScene")) {
+      this.ship.setAlpha(0);
+      this.sound_player_hit.play();
       // big laser takes 2 hits
       for (let i = 0; i < 2; i++) {
         this.ship_health -= 1;
@@ -388,6 +402,9 @@ class bossScene extends Scene {
   }
 
   update() {
+    if(this.ship.alpha != 1){
+      this.ship.setAlpha(this.ship.alpha + 0.05);
+    }
     this.updateShieldPos();
     //if game_start_time is 0 it means the scene has just been created. for some reason it doesn't work
     //properly if i do this in create(), since it gets all weird when you pause or return to the main menu
@@ -404,6 +421,8 @@ class bossScene extends Scene {
       this.last_pause_start = this.pause_start;
       //this.time_remaining += this.time.now - this.pause_start;
       //this.pause_start = 0;
+      this.lvlS.resume()
+      this.strtS.resume()
     }
 
     this.time_elapsed = this.time.now - this.time_paused - this.game_start_time;
@@ -545,6 +564,8 @@ class bossScene extends Scene {
         this.pause_start = this.time.now;
       }
       console.log("Esc detected, pausing game.");
+      this.lvlS.pause();
+      this.strtS.pause();
       this.scene.launch("pauseMenuScene", {
         userData: this.userData,
         sceneKey: "bossScene",
@@ -561,6 +582,8 @@ class bossScene extends Scene {
   }
   checkGameOver() {
     if (this.ship_health == 0) {
+      this.lvlS.stop();
+      this.ship.setAlpha(0);
       this.ready_graphic.setVisible(false);
       this.fire_graphic.setVisible(false);
       //   this.level_graphic.setVisible(false);
@@ -573,6 +596,7 @@ class bossScene extends Scene {
   }
 
   clearedLevel() {
+    this.lvlS.stop();
     this.scene.launch("clearMenuScene", {
       userData: this.userData,
       sceneKey: "bossScene",
