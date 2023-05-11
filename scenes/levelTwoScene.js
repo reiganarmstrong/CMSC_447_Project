@@ -188,7 +188,10 @@ class levelTwoScene extends Scene {
 
     //this should be zero because then the enemies start to get off-cycle from one another
     //form a huge group on one side of the screen
-    if (this.enemies_remaining <= 0) {
+    if (
+      this.enemies_remaining <= 0 ||
+      this.enemyGroup.getLastNth(1, true) == null
+    ) {
       //this.enemyGroup.destroy();
       //this.enemyLaserGroup.destroy();
 
